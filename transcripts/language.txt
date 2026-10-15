@@ -1,53 +1,53 @@
 Training LLM Agents to Empower Humans
 Evan Ellis, Vivek Myers, Jens Tuyls, Sergey Levine, Anca Dragan, Benjamin Eysenbach
 https://arxiv.org/abs/2510.13709
-Original educational narration. Toy examples are not benchmark replications.
+Visual edition 2. Original educational examples. Neural synthetic narration.
 
-00:00:00.000 — The next token may be the real decision
-A coding assistant can fill in punctuation, repeat a familiar loop pattern, or choose the algorithm that defines the whole program. These actions have very different implications for the human's control. Completing more text is not automatically better assistance if it passes through a decision the human intended to make.
+00:00:00.000 — Where should the assistant stop?
+Imagine an assistant drafting a message with you. It begins: 'I recommend we...' The next word might be 'approve' or 'reject.' That is a meaningful choice. The assistant can finish the sentence on its own, or pause and leave that decision to you. Fluent continuation and preserving your influence are different objectives.
 
-Training LLM Agents to Empower Humans studies this problem with the document as a state. The assistant proposes text; the human can accept, reject, or finish, and can add their own text. Effective empowerment measures how the human's next contribution influences the future document, rather than measuring how much control the assistant accumulates.
+Training LLM Agents to Empower Humans studies how to automate predictable portions of an interaction while handing consequential choices back to a person. The paper uses a practical information-based proxy. To understand it, we need to separate three quantities that are easy to blur together: entropy, surprisal, and empowerment.
 
-The practical method uses offline text to construct training examples that complete predictable continuations. The ambition is to help the human reach a consequential choice more quickly. Our animations use an invented token sequence so that you can inspect every probability. They do not claim to reproduce an actual model's tokenization or its confidence on real code.
+Keep our unfinished sentence on screen. Common introductory words offer little branching; 'approve' and 'reject' can lead to very different outcomes. This is an illustrative example, not a quotation of a paper experiment. It will let us compute the stopping rule token by token and inspect its limitations.
 Source / scope: Language paper §§3–4. Invented token sequence is a teaching model; author claims are distinguished from our visualization.
 
-00:01:07.416 — Mutual information is bounded by action entropy
-The information objective still looks hard to compute over all possible future documents. Start with a standard identity: mutual information equals the human action entropy minus the uncertainty about that action after the future is observed. The second term cannot be negative, so action entropy is an upper bound.
+00:01:07.827 — Uncertainty is not automatically influence
+Entropy measures uncertainty across possible choices. If a human's decision is completely fixed, there is no variation in that decision to transmit through the interaction. That gives an upper bound: information between the human's choice and the eventual outcome cannot exceed the entropy of the choice itself.
 
-This gives a one-way implication. If the human's next action is almost certain, it cannot transmit much information through this channel. But high uncertainty does not prove high empowerment. A person could make many random edits that are later overwritten, leaving the final document independent of the choice.
+But an upper bound does not work in reverse. High choice entropy does not guarantee that those choices have any effect on what the assistant does. Imagine a random decision followed by an assistant that always sends the same message. The decision is unpredictable, yet its influence on the output is zero.
 
-That asymmetry is essential to reading the paper. The method uses low estimated entropy as a signal for text that may be uninteresting for the human to supply. It does not exactly calculate the mutual information of every proposed completion. Our lab therefore displays a surprisal threshold and a completion length, rather than mislabeling either as measured human empowerment.
+This matters because a likelihood-based language-model score is easier to compute than full human-to-outcome mutual information. It can supply a useful approximation for deciding when to pause. We should still call it a proxy. Surprising text might reflect a meaningful human choice, an unfamiliar phrase, or simply a poor predictive model.
 Source / scope: Language §4.3 entropy upper bound. Random-edit counterexample is original; high entropy alone is not a lower bound on empowerment.
 
-00:02:10.318 — Surprisal is a sample, not an entropy oracle
-Entropy is an expectation over possible human actions. We do not know the complete human policy, so the method uses a pretrained language model as a likelihood proxy. For one observed continuation, negative log model probability is a surprisal sample. It is not the entropy of the whole action distribution.
+00:02:15.909 — A token spends a surprise budget
+Now look at a single predicted token. If the model assigns it probability point nine, its surprisal is the negative logarithm of point nine: a small amount. If the probability is point one, the surprisal is much larger. A token that the model expected less spends more of our surprise budget.
 
-If samples truly came from the human policy and the predictor matched that policy, averaging their surprisals would recover the entropy. With a mismatched predictor, the average instead equals cross-entropy: human entropy plus a Kullback Leibler mismatch term. A surprised model might therefore be seeing an unusual but obvious human action, rather than an important decision.
+Surprisal belongs to a particular observed token. Entropy is the average surprisal under the distribution itself. One surprising token is not a complete entropy estimate. And when our model's probabilities differ from the real distribution, average model surprisal includes an extra mismatch term, the KL divergence between those distributions.
 
-This does not make the heuristic useless. It identifies an assumption to test. Calibration, domain shift, tokenization, and which corpus supplies the samples can all affect the threshold. In the lab, changing a candidate token's assigned probability moves the stopping point without changing any underlying human capability. That illustrates why the score should remain labeled as a model-based proxy.
+That mismatch is why a rare name might trigger a pause even when no important decision is being made. The model can be surprised for the wrong reason. Conversely, a familiar but consequential decision may be easy to predict. A practical stopping policy must be evaluated on interactions, not justified by the proxy's name alone.
 Source / scope: Language §4.3 model-likelihood approximation; cross-entropy decomposition is a standard identity, explained with original examples.
 
-00:03:20.771 — Stop when cumulative surprise exceeds a budget
-A completion's probability factors into conditional token probabilities. Taking a negative logarithm converts their product into a sum. Each additional token adds a nonnegative surprisal cost, so the cumulative curve can only rise. The method chooses the longest continuation whose total cost stays below a selected threshold.
+00:03:25.658 — Walk through the stopping rule
+Give the assistant a cumulative budget of one nat. Add the negative log probability of each generated token to a running total, starting from zero. The words 'I recommend we' are all highly probable in this toy model. Their combined surprise stays low, so the assistant can continue through that predictable prefix.
 
-Suppose four predictable tokens have cumulative surprisal point two nats. The next token alone adds one point four nats. With a threshold of one nat, the assistant's training target ends before that token. Raising the threshold can admit it and perhaps more tokens afterward. The stopping rule depends on the sum, not just the least likely individual token.
+Now consider 'approve,' assigned probability point one five. That word alone costs about one point nine nats, pushing the total beyond our one-nat budget. The accepted prefix stops before that token. It ends at 'I recommend we,' leaving the branch between approval and rejection for the human to decide.
 
-All logarithms here are natural. Therefore a surprisal threshold of eta corresponds to a sequence-probability threshold of exponential minus eta. If you choose base-two logs instead, the corresponding expression uses two to the minus eta. The numerical lab handles the empty-prefix case explicitly when even the first token crosses the threshold.
+The rule uses a strict threshold: the accepted cumulative surprise must stay below the budget. Equivalently, the prefix probability must stay above the exponential of minus that budget. These are two views of the same arithmetic. They do not guarantee that every threshold crossing identifies a meaningful human decision in a real conversation.
 Source / scope: Language §4.2 and Algorithm 1, with an explicit zero-length case. Numerical token example and log-base clarification are original.
 
-00:04:28.422 — Construct targets, then fine-tune
-The implementation is surprisingly concrete. Sample a program and choose a prefix. Score the remaining suffix with the likelihood model. Walk forward until cumulative surprisal crosses the threshold, then use the preceding continuation as the assistant's training target. This turns an information-theoretic motivation into a data-selection procedure.
+00:04:34.968 — Learn from the accepted prefix
+The budget now determines which parts of a demonstration become training targets. Predictable prefixes are kept; the continuation beyond the selected stopping point is excluded from those targets. The model is then fine-tuned on the selected material. This is a concrete way for the stopping criterion to shape what the assistant learns to automate.
 
-Fine-tune the assistant to produce these selected continuations. The practical algorithm does not need to enumerate future documents or run an exact mutual-information reinforcement learning loop during target construction. That distinction is important in a course on empowerment-based reinforcement learning: the theoretical objective can inspire a supervised training recipe rather than appearing literally as a policy-gradient reward.
+Move the budget slider downward and the accepted prefix gets shorter. Move it upward and the model can continue farther before yielding control. This creates a tradeoff between doing useful routine work and leaving choices available. The best setting depends on the interaction and the quality of the likelihood model.
 
-The included code implements the stopping calculation on explicit probabilities. It is a transparent reference for the arithmetic, not a complete language-model training system. To build the full method, you would additionally need a tokenizer, a likelihood model, a dataset, training configuration, and an evaluation protocol that measures the human's experience with the resulting assistant.
+The paper's practical training procedure uses target selection and supervised fine-tuning. It does not directly optimize an exact human empowerment quantity through a standard policy-gradient estimator. That distinction is useful when reproducing the method: first understand the scoring, prefix selection, and training targets, then evaluate the resulting interaction behavior.
 Source / scope: Language §4.2 offline target construction and fine-tuning. Code is an original threshold reference, not a reproduction of full LLM training.
 
-00:05:43.730 — Evaluate assistance beyond completion length
-The authors report an eighteen-person study in which participants preferred their empowerment-trained assistant seventy-eight percent of the time, alongside evaluations with simulated coding users. These findings support the method in the studied settings. They do not establish that shorter completions, or any fixed surprisal threshold, will be best for every user and task.
+00:05:48.301 — Evaluate the handoff
+To test the method, watch what happens at the handoff. Does the assistant complete the predictable work? Does it pause before committing the user to a consequential branch? Also check unnecessary interruptions. A system that asks about every token preserves very little convenience, even if it leaves every microscopic choice to the human.
 
-For a new deployment, evaluate preference, acceptance, task outcomes, and whether the assistant leaves the intended decisions to the human. Inspect failures where model uncertainty reflects unfamiliar vocabulary rather than a genuine choice. Also compare against well-tuned completion-length baselines, because the goal is better assistance, not merely changing the number of generated tokens.
+The paper reports human preference evidence in a particular study, alongside its other evaluations. Such results support claims about that setting, not every possible user or task. For a new deployment, measure both task outcomes and retained human influence. The two can move differently, and a language-model likelihood score cannot replace either measurement.
 
-Across the series, the same information-theoretic lens appears in several roles. DIAYN learns recognizable skills. Geometry and SEE ask where many skills remain possible. Representation learning asks which features matter for control. Assistance changes whose influence is optimized. The definitions, assumptions, and measurement channel determine what each objective actually promises.
+Return to our sentence. A helpful assistant writes the predictable setup, then leaves 'approve' or 'reject' open when that is the decision the person should make. The recurring question is whose choices remain distinguishable in the future. Here, useful progress should keep the human in that loop.
 Source / scope: Language empirical results and project page; interpretation is limited to the reported study. Final synthesis is original.
 

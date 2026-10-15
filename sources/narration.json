@@ -1,0 +1,15 @@
+{
+  "engine": "kokoro-onnx 0.6.1",
+  "model": "Kokoro 82M v1.0, full precision",
+  "voice": "af_heart",
+  "speed": 0.94,
+  "model_license": "Apache-2.0",
+  "engine_license": "MIT",
+  "source": "https://github.com/thewh1teagle/kokoro-onnx",
+  "model_card": "https://huggingface.co/hexgrad/Kokoro-82M",
+  "time_stretch": false,
+  "loudness_target_LUFS": -18,
+  "caption_mode": "selectable",
+  "model_sha256": "beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a",
+  "voices_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+}

@@ -1,232 +1,109 @@
 WEBVTT
 
-00:00:00.442 --> 00:00:08.756
-A coding assistant can fill in punctuation, repeat a familiar loop pattern, or choose the algorithm that defines the whole program.
+00:00:00.700 --> 00:00:10.682
+Imagine an assistant drafting a message with you. It begins: 'I recommend we...' The next word might be 'approve' or 'reject.' That is a meaningful choice.
 
-00:00:08.866 --> 00:00:12.946
-These actions have very different implications for the human's control.
+00:00:11.102 --> 00:00:21.471
+The assistant can finish the sentence on its own, or pause and leave that decision to you. Fluent continuation and preserving your influence are different objectives.
 
-00:00:13.056 --> 00:00:19.807
-Completing more text is not automatically better assistance if it passes through a decision the human intended to make.
+00:00:22.221 --> 00:00:32.939
+Training LLM Agents to Empower Humans studies how to automate predictable portions of an interaction while handing consequential choices back to a person.
 
-00:00:20.084 --> 00:00:25.654
-Training LLM Agents to Empower Humans studies this problem with the document as a state.
+00:00:33.359 --> 00:00:45.187
+The paper uses a practical information-based proxy. To understand it, we need to separate three quantities that are easy to blur together: entropy, surprisal, and empowerment.
 
-00:00:25.765 --> 00:00:33.066
-The assistant proposes text; the human can accept, reject, or finish, and can add their own text.
+00:00:45.937 --> 00:00:55.387
+Keep our unfinished sentence on screen. Common introductory words offer little branching; 'approve' and 'reject' can lead to very different outcomes.
 
-00:00:33.177 --> 00:00:41.567
-Effective empowerment measures how the human's next contribution influences the future document, rather than measuring how much control
+00:00:55.807 --> 00:01:06.527
+This is an illustrative example, not a quotation of a paper experiment. It will let us compute the stopping rule token by token and inspect its limitations.
 
-00:00:41.677 --> 00:00:43.395
-the assistant accumulates.
+00:01:08.727 --> 00:01:19.938
+Entropy measures uncertainty across possible choices. If a human's decision is completely fixed, there is no variation in that decision to transmit through the interaction.
 
-00:00:43.672 --> 00:00:50.667
-The practical method uses offline text to construct training examples that complete predictable continuations.
+00:01:20.358 --> 00:01:28.881
+That gives an upper bound: information between the human's choice and the eventual outcome cannot exceed the entropy of the choice itself.
 
-00:00:50.778 --> 00:00:55.166
-The ambition is to help the human reach a consequential choice more quickly.
+00:01:29.631 --> 00:01:38.953
+But an upper bound does not work in reverse. High choice entropy does not guarantee that those choices have any effect on what the assistant does.
 
-00:00:55.276 --> 00:01:00.650
-Our animations use an invented token sequence so that you can inspect every probability.
+00:01:39.373 --> 00:01:50.380
+Imagine a random decision followed by an assistant that always sends the same message. The decision is unpredictable, yet its influence on the output is zero.
 
-00:01:00.761 --> 00:01:06.586
-They do not claim to reproduce an actual model's tokenization or its confidence on real code.
+00:01:51.130 --> 00:02:04.463
+This matters because a likelihood-based language-model score is easier to compute than full human-to-outcome mutual information. It can supply a useful approximation for deciding when to pause.
 
-00:01:07.858 --> 00:01:13.131
-The information objective still looks hard to compute over all possible future documents.
+00:02:04.883 --> 00:02:14.609
+We should still call it a proxy. Surprising text might reflect a meaningful human choice, an unfamiliar phrase, or simply a poor predictive model.
 
-00:01:13.242 --> 00:01:21.831
-Start with a standard identity: mutual information equals the human action entropy minus the uncertainty about that action after the
+00:02:16.809 --> 00:02:27.901
+Now look at a single predicted token. If the model assigns it probability point nine, its surprisal is the negative logarithm of point nine: a small amount.
 
-00:01:21.941 --> 00:01:23.226
-future is observed.
+00:02:28.321 --> 00:02:37.165
+If the probability is point one, the surprisal is much larger. A token that the model expected less spends more of our surprise budget.
 
-00:01:23.337 --> 00:01:27.830
-The second term cannot be negative, so action entropy is an upper bound.
+00:02:37.915 --> 00:02:49.830
+Surprisal belongs to a particular observed token. Entropy is the average surprisal under the distribution itself. One surprising token is not a complete entropy estimate.
 
-00:01:28.106 --> 00:01:30.145
-This gives a one-way implication.
+00:02:50.250 --> 00:03:01.160
+And when our model's probabilities differ from the real distribution, average model surprisal includes an extra mismatch term, the KL divergence between those distributions.
 
-00:01:30.256 --> 00:01:36.310
-If the human's next action is almost certain, it cannot transmit much information through this channel.
+00:03:01.910 --> 00:03:11.426
+That mismatch is why a rare name might trigger a pause even when no important decision is being made. The model can be surprised for the wrong reason.
 
-00:01:36.421 --> 00:01:39.455
-But high uncertainty does not prove high empowerment.
+00:03:11.846 --> 00:03:24.358
+Conversely, a familiar but consequential decision may be easy to predict. A practical stopping policy must be evaluated on interactions, not justified by the proxy's name alone.
 
-00:01:39.565 --> 00:01:46.364
-A person could make many random edits that are later overwritten, leaving the final document independent of the choice.
+00:03:26.558 --> 00:03:36.660
+Give the assistant a cumulative budget of one nat. Add the negative log probability of each generated token to a running total, starting from zero.
 
-00:01:46.641 --> 00:01:49.475
-That asymmetry is essential to reading the paper.
+00:03:37.080 --> 00:03:47.948
+The words 'I recommend we' are all highly probable in this toy model. Their combined surprise stays low, so the assistant can continue through that predictable prefix.
 
-00:01:49.586 --> 00:01:56.055
-The method uses low estimated entropy as a signal for text that may be uninteresting for the human to supply.
+00:03:48.698 --> 00:03:59.138
+Now consider 'approve,' assigned probability point one five. That word alone costs about one point nine nats, pushing the total beyond our one-nat budget.
 
-00:01:56.166 --> 00:02:01.360
-It does not exactly calculate the mutual information of every proposed completion.
+00:03:59.558 --> 00:04:09.468
+The accepted prefix stops before that token. It ends at 'I recommend we,' leaving the branch between approval and rejection for the human to decide.
 
-00:02:01.471 --> 00:02:09.489
-Our lab therefore displays a surprisal threshold and a completion length, rather than mislabeling either as measured human empowerment.
+00:04:10.218 --> 00:04:22.731
+The rule uses a strict threshold: the accepted cumulative surprise must stay below the budget. Equivalently, the prefix probability must stay above the exponential of minus that budget.
 
-00:02:10.760 --> 00:02:14.440
-Entropy is an expectation over possible human actions.
+00:04:23.151 --> 00:04:33.668
+These are two views of the same arithmetic. They do not guarantee that every threshold crossing identifies a meaningful human decision in a real conversation.
 
-00:02:14.551 --> 00:02:21.779
-We do not know the complete human policy, so the method uses a pretrained language model as a likelihood proxy.
+00:04:35.868 --> 00:04:48.944
+The budget now determines which parts of a demonstration become training targets. Predictable prefixes are kept; the continuation beyond the selected stopping point is excluded from those targets.
 
-00:02:21.890 --> 00:02:27.487
-For one observed continuation, negative log model probability is a surprisal sample.
+00:04:49.364 --> 00:04:59.594
+The model is then fine-tuned on the selected material. This is a concrete way for the stopping criterion to shape what the assistant learns to automate.
 
-00:02:27.598 --> 00:02:30.739
-It is not the entropy of the whole action distribution.
+00:05:00.344 --> 00:05:09.398
+Move the budget slider downward and the accepted prefix gets shorter. Move it upward and the model can continue farther before yielding control.
 
-00:02:31.016 --> 00:02:39.188
-If samples truly came from the human policy and the predictor matched that policy, averaging their surprisals would recover the entropy.
+00:05:09.818 --> 00:05:20.689
+This creates a tradeoff between doing useful routine work and leaving choices available. The best setting depends on the interaction and the quality of the likelihood model.
 
-00:02:39.299 --> 00:02:47.310
-With a mismatched predictor, the average instead equals cross-entropy: human entropy plus a Kullback Leibler mismatch term.
+00:05:21.439 --> 00:05:35.124
+The paper's practical training procedure uses target selection and supervised fine-tuning. It does not directly optimize an exact human empowerment quantity through a standard policy-gradient estimator.
 
-00:02:47.421 --> 00:02:54.297
-A surprised model might therefore be seeing an unusual but obvious human action, rather than an important decision.
+00:05:35.544 --> 00:05:47.001
+That distinction is useful when reproducing the method: first understand the scoring, prefix selection, and training targets, then evaluate the resulting interaction behavior.
 
-00:02:54.573 --> 00:02:56.959
-This does not make the heuristic useless.
+00:05:49.201 --> 00:05:59.324
+To test the method, watch what happens at the handoff. Does the assistant complete the predictable work? Does it pause before committing the user to a consequential branch?
 
-00:02:57.069 --> 00:02:59.530
-It identifies an assumption to test.
+00:05:59.744 --> 00:06:11.146
+Also check unnecessary interruptions. A system that asks about every token preserves very little convenience, even if it leaves every microscopic choice to the human.
 
-00:02:59.641 --> 00:03:07.226
-Calibration, domain shift, tokenization, and which corpus supplies the samples can all affect the threshold.
+00:06:11.896 --> 00:06:24.221
+The paper reports human preference evidence in a particular study, alongside its other evaluations. Such results support claims about that setting, not every possible user or task.
 
-00:03:07.336 --> 00:03:15.598
-In the lab, changing a candidate token's assigned probability moves the stopping point without changing any underlying human capability.
+00:06:24.641 --> 00:06:36.470
+For a new deployment, measure both task outcomes and retained human influence. The two can move differently, and a language-model likelihood score cannot replace either measurement.
 
-00:03:15.709 --> 00:03:19.942
-That illustrates why the score should remain labeled as a model-based proxy.
+00:06:37.220 --> 00:06:47.599
+Return to our sentence. A helpful assistant writes the predictable setup, then leaves 'approve' or 'reject' open when that is the decision the person should make.
 
-00:03:21.213 --> 00:03:25.702
-A completion's probability factors into conditional token probabilities.
-
-00:03:25.813 --> 00:03:29.650
-Taking a negative logarithm converts their product into a sum.
-
-00:03:29.761 --> 00:03:36.022
-Each additional token adds a nonnegative surprisal cost, so the cumulative curve can only rise.
-
-00:03:36.132 --> 00:03:41.934
-The method chooses the longest continuation whose total cost stays below a selected threshold.
-
-00:03:42.210 --> 00:03:46.950
-Suppose four predictable tokens have cumulative surprisal point two nats.
-
-00:03:47.060 --> 00:03:49.897
-The next token alone adds one point four nats.
-
-00:03:50.008 --> 00:03:55.157
-With a threshold of one nat, the assistant's training target ends before that token.
-
-00:03:55.268 --> 00:03:59.293
-Raising the threshold can admit it and perhaps more tokens afterward.
-
-00:03:59.404 --> 00:04:04.589
-The stopping rule depends on the sum, not just the least likely individual token.
-
-00:04:04.866 --> 00:04:06.884
-All logarithms here are natural.
-
-00:04:06.994 --> 00:04:14.681
-Therefore a surprisal threshold of eta corresponds to a sequence-probability threshold of exponential minus eta.
-
-00:04:14.791 --> 00:04:20.731
-If you choose base-two logs instead, the corresponding expression uses two to the minus eta.
-
-00:04:20.841 --> 00:04:27.593
-The numerical lab handles the empty-prefix case explicitly when even the first token crosses the threshold.
-
-00:04:28.864 --> 00:04:31.699
-The implementation is surprisingly concrete.
-
-00:04:31.810 --> 00:04:34.316
-Sample a program and choose a prefix.
-
-00:04:34.426 --> 00:04:37.394
-Score the remaining suffix with the likelihood model.
-
-00:04:37.504 --> 00:04:45.836
-Walk forward until cumulative surprisal crosses the threshold, then use the preceding continuation as the assistant's training target.
-
-00:04:45.947 --> 00:04:50.733
-This turns an information-theoretic motivation into a data-selection procedure.
-
-00:04:51.009 --> 00:04:54.758
-Fine-tune the assistant to produce these selected continuations.
-
-00:04:54.869 --> 00:05:02.930
-The practical algorithm does not need to enumerate future documents or run an exact mutual-information reinforcement learning loop
-
-00:05:03.040 --> 00:05:04.666
-during target construction.
-
-00:05:04.776 --> 00:05:12.424
-That distinction is important in a course on empowerment-based reinforcement learning: the theoretical objective can inspire a
-
-00:05:12.534 --> 00:05:17.890
-supervised training recipe rather than appearing literally as a policy-gradient reward.
-
-00:05:18.166 --> 00:05:23.093
-The included code implements the stopping calculation on explicit probabilities.
-
-00:05:23.204 --> 00:05:28.950
-It is a transparent reference for the arithmetic, not a complete language-model training system.
-
-00:05:29.061 --> 00:05:37.647
-To build the full method, you would additionally need a tokenizer, a likelihood model, a dataset, training configuration, and an
-
-00:05:37.758 --> 00:05:42.901
-evaluation protocol that measures the human's experience with the resulting assistant.
-
-00:05:44.172 --> 00:05:51.705
-The authors report an eighteen-person study in which participants preferred their empowerment-trained assistant seventy-eight percent of
-
-00:05:51.815 --> 00:05:56.312
-the time, alongside evaluations with simulated coding users.
-
-00:05:56.423 --> 00:05:59.527
-These findings support the method in the studied settings.
-
-00:05:59.638 --> 00:06:07.324
-They do not establish that shorter completions, or any fixed surprisal threshold, will be best for every user and task.
-
-00:06:07.601 --> 00:06:16.830
-For a new deployment, evaluate preference, acceptance, task outcomes, and whether the assistant leaves the intended decisions to the
-
-00:06:16.941 --> 00:06:17.495
-human.
-
-00:06:17.606 --> 00:06:24.084
-Inspect failures where model uncertainty reflects unfamiliar vocabulary rather than a genuine choice.
-
-00:06:24.195 --> 00:06:32.656
-Also compare against well-tuned completion-length baselines, because the goal is better assistance, not merely changing the number of
-
-00:06:32.766 --> 00:06:34.094
-generated tokens.
-
-00:06:34.371 --> 00:06:39.450
-Across the series, the same information-theoretic lens appears in several roles.
-
-00:06:39.560 --> 00:06:41.827
-DIAYN learns recognizable skills.
-
-00:06:41.938 --> 00:06:45.409
-Geometry and SEE ask where many skills remain possible.
-
-00:06:45.520 --> 00:06:49.378
-Representation learning asks which features matter for control.
-
-00:06:49.489 --> 00:06:52.655
-Assistance changes whose influence is optimized.
-
-00:06:52.766 --> 00:06:59.171
-The definitions, assumptions, and measurement channel determine what each objective actually promises.
+00:06:48.019 --> 00:06:56.382
+The recurring question is whose choices remain distinguishable in the future. Here, useful progress should keep the human in that loop.

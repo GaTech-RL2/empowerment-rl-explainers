@@ -1,53 +1,53 @@
 Scaling Empowered Agents
 Catherine Ji, Vivek Myers, Joshua Lin, Alexandra Wingate, Sergey Levine, Benjamin Eysenbach
 https://arxiv.org/abs/2610.13002
-Original educational narration. Toy examples are not benchmark replications.
+Visual edition 2. Original educational examples. Neural synthetic narration.
 
-00:00:00.000 — A workshop and a box of skills
-Imagine arriving at an empty workshop. You know how to cut, assemble, and repair things, but none of those skills works well without tools and materials. One behavior gathers resources and prepares the workspace. Other behaviors use those resources to produce different outcomes. Both are useful, but they optimize different immediate objectives.
+00:00:00.000 — First reach the workshop
+Imagine a robot in a narrow corridor, beside a workshop with several tools. In the corridor, its skills mostly move it forward or backward. Inside the workshop, those skills could produce many more distinct outcomes. Before using a tool, the robot has to reach a place where tools are available.
 
-Skills Estimate Empowerment, abbreviated SEE, turns this distinction into a two-policy recipe. A skill policy probes the distinguishable futures available from a starting context. A separate potential-empowerment policy learns to visit states where the skill-based estimate is high. The same state may therefore be an endpoint for preparation and a starting point for skill execution.
+That creates two learning problems. One policy practices distinguishable behaviors from a starting state. Another policy learns to reach promising starting states in the first place. Scaling Empowered Agents builds around this separation. We will call these the skill policy and the preparation policy, and keep their jobs visually distinct.
 
-Our workshop is a teaching example, not a reported environment. It highlights the key architectural separation: the skill latent describes what to do, while the outer policy improves where skills can begin. Simply switching among diverse skills does not automatically implement that outer preparation objective.
+The skill policy asks what different effects it can produce here. The preparation policy asks where it should go to make those effects possible. Our workshop is a teaching example. The important feature is the dependency: preparing the world can expand the set of choices an agent will have later.
 Source / scope: Scaling §4 two-policy SEE recipe. Workshop illustration is original; no benchmark reproduction is claimed.
 
-00:01:09.455 — Decode the skill from a future outcome
-The ideal decoder receives both the starting context and a future outcome, then predicts which skill was selected. A far-away outcome can mean different things depending on where the skill began. Conditioning on that starting context is therefore part of the mathematical channel, not an incidental implementation detail.
+00:01:04.867 — Measure a skill through its effect
+At the workshop entrance, choose one of four skill labels. Run that skill, then show its future state to a classifier that tries to recover the label. If the resulting states are distinct, the classifier can identify the skill. Its log probability gain over the prior supplies an intrinsic reward, as in DIAYN.
 
-As before, posterior evidence relative to the prior supplies a variational reward. A contrastive model can represent this evidence using logits. But logits are only defined relative to a normalization term. Subtract the log average exponential score over candidate skills to obtain a normalized density ratio for the chosen skill.
+This time, also tell the classifier where the skill started. A future state can have different meanings depending on the starting state that came before it. For example, ending beside a tool says something different if you began beside it already. Conditioning on the start isolates the information carried by the skill.
 
-This distinction matters when the estimate becomes another learner's reward. A score can grow through arbitrary offsets without representing additional control. The paper discusses practical classifier variants, including a joint classifier in continuous settings. Our derivation uses the ideal conditional form, and the lab uses exact finite distributions so every normalization can be checked directly.
+There are now two reasons for a low score. The skills may produce the same effects, or the classifier may fail to recognize effects that are different. Keep those failures separate. A low learned information estimate does not, by itself, prove that the starting state has few genuinely achievable options.
 Source / scope: Scaling §4.1, practical classifier discussion in §4.2, and appendix A.1. Exact finite decoder is a teaching model.
 
-00:02:20.398 — A skill value becomes an empowerment estimate
-The future state in the theory is sampled at a geometric time. Equivalently, average the decoder reward along a rollout with discount weights and multiply by one minus gamma. A value function can estimate that normalized discounted return for each skill and starting context.
+00:02:08.285 — Replace repeated experiments with a value
+Testing every skill from every state would be expensive. So learn a value function that predicts the future intrinsic return of the skill policy. Think of the value as a fast estimate of how readable the skill's future effects will be. It replaces repeated long experiments with a prediction.
 
-Now average the skill values. In the ideal population calculation, this quantity lower-bounds the information realized by the current skill family. That realized information, in turn, cannot exceed the best available capacity. The first gap comes from the decoder; the second comes from skills that may not exploit every controllable outcome.
+The paper uses a discounted future-state distribution. Its weights include a factor of one minus gamma, making the entire distribution sum to one. An ordinary discounted reward sum does not include that normalization. Keep the scale factor when connecting a value estimate to a normalized information quantity.
 
-In code, we also approximate the skill average with a finite sample and fit the value function from data. Those approximations are not guaranteed lower bounds on each individual estimate. Increasing the sample count reduces ordinary sampling variance under independence, but cannot fix a biased critic. The lab separates true capacity, realized information, and the estimated score.
+With exact expectations and the appropriate decoder, the population variational objective is a lower bound on information. A fitted neural value is an approximation to that objective. Its prediction errors can go either way. A high number on a learned critic is therefore not a mathematical certificate of equally high empowerment.
 Source / scope: Scaling Eqs. 6–9; finite-sample and critic caveats follow from the distinction between population objectives and fitted estimates.
 
-00:03:28.160 — Collect data for both levels
-There is a data-collection problem hidden inside the equations. We cannot first solve every possible skill from every possible state in a large environment. We need a way to sample the contexts that matter while learning the skills that measure those contexts.
+00:03:14.829 — Prepare, then demonstrate
+Now let the preparation policy act. It moves from the corridor toward states where the learned skill value is high. In our example, it enters the workshop. Only then do we select a skill and demonstrate an effect. The orange preparation path and the colored skill paths belong to different levels of the system.
 
-SEE collects two-stage rollouts: run the potential policy, then sample a skill and execute it from the reached state. The outer trajectory proposes a promising starting context. The skill continuation probes its available control. Data from these interactions updates the representations, value estimates, and policies, producing a moving feedback loop.
+As skills improve, the workshop's estimated usefulness can increase. Better preparation then brings the agent to states that support richer skill practice. This feedback can help learning, but it can also amplify errors. A bad value estimate may attract the preparation policy to a location that only looks promising.
 
-A useful debugging plot would show both phases separately. If preparation reaches the same state every time, ask whether its estimated advantage is real. If skills collapse to identical outcomes, a low empowerment estimate might reflect weak skills rather than a fundamentally powerless state. This is why recording only the outer reward curve can hide which component failed.
+So we should occasionally return to direct evidence. Fix a starting state, sample skills, and inspect the actual resulting distributions rather than only the predicted value. The key comparison is between opportunities that exist, opportunities the current skills realize, and opportunities the current measurement system manages to recognize.
 Source / scope: Scaling §4.2 and algorithm appendix: two-stage data collection. Debugging plots and failure interpretation are original implementation guidance.
 
-00:04:34.590 — Choose the variables that count as control
-Suppose an agent can wiggle an irrelevant display with extremely fine precision. A sufficiently expressive decoder might distinguish many skill labels from tiny display changes. That could create a large information score without producing the resource gathering or object manipulation that motivated the experiment.
+00:04:22.434 — Watch the measurement bottleneck
+Suppose two tools produce visibly different physical outcomes, but our observation encoder maps both outcomes to exactly the same feature vector. The classifier cannot distinguish them through that representation. Information about the chosen skill has been lost before the decoder even gets to see the data.
 
-The paper therefore treats the measurement channel as a design choice. Its practical implementation restricts which state variables enter empowerment estimation and adds a noise-based bottleneck in continuous settings. The policy can still receive the full observation needed for control. What the agent can see and what counts toward the empowerment objective need not be identical.
+Now add a flashing background light that changes independently of the skill. The observation becomes more variable, but the light carries no information about our choice. In the ideal information calculation, independent nuisance variation cancels. A finite learned system can still waste capacity modeling it, which makes representation design matter.
 
-The data-processing inequality gives a useful intuition: adding independent measurement noise cannot increase true mutual information. It can suppress fragile distinctions below a chosen resolution. That is an inductive bias, not a proof that all remaining behavior is useful. In the lab, compare meaningful outcome noise with a deliberately biased empowerment estimate and observe their different effects.
+Three bottlenecks now stand between real options and the reported score: the skills themselves, the representation of their outcomes, and the learned decoder or value. Improving one bottleneck need not fix the others. This is why a larger reported intrinsic return is not enough evidence that an agent became more capable.
 Source / scope: Scaling §4.2 and appendix A.1: restricted outcome variables and Gaussian noising. Display example and lab are original.
 
-00:05:45.841 — What scaling does—and does not—establish
-The authors report emergent behaviors in their tested environments, including resource gathering and environment modification. These are empirical observations about a particular method, measurement channel, and training setup. They are not evidence that arbitrary agents will discover every useful behavior from an unrestricted information objective.
+00:05:32.566 — Check what improved
+To evaluate the system, hold the starting state fixed and test the skill family. Do different labels reliably produce different outcomes, including on held-out experience? Then evaluate the preparation policy separately. Does it reach states where those distinctions become easier to achieve, or merely states where the critic is overconfident?
 
-For your own experiment, evaluate three things independently. First, inspect the states reached by the preparation policy. Second, execute different skills from those states and measure whether their effects remain distinguishable. Third, evaluate any downstream task you actually care about. A score produced by the same learned estimator used for training is not an independent validation.
+The paper develops practical neural approximations to make this learning scalable, including approximations to the relevant classifier structure. Our boxes are the conceptual decomposition. They are not a complete implementation or a claim that every approximation is exact. The companion gives the equations, source references, and a small inspectable experiment.
 
-The central algorithmic idea is reusable: let skills estimate controllable futures, then learn to seek states where that estimate is large. Its reliability depends on representation choices, data coverage, and the quality of the estimator. The next lesson asks what the empowerment objective itself can tell us about which state features a representation should keep.
+Keep the workshop picture: first learn what you can do from a place, then learn to reach places where you can do more. The value function makes that second search practical. Its usefulness depends on how well the skills, observations, and decoder measure the control the world actually permits.
 Source / scope: Scaling experiments and discussion; audit checklist is original. This October 2026 work is presented as a preprint, not an established universal result.
 

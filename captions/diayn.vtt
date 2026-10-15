@@ -1,232 +1,109 @@
 WEBVTT
 
-00:00:00.476 --> 00:00:02.873
-Imagine a robot with two buttons.
+00:00:00.700 --> 00:00:09.487
+Imagine two buttons and a puck. The blue button sends the puck left; the yellow button sends it right. Watch what happens when I press blue.
 
-00:00:02.992 --> 00:00:07.771
-One reliably moves a puck left, and the other reliably moves it right.
+00:00:09.907 --> 00:00:18.110
+Now hide the buttons. Just by looking at the puck, you can tell which one I pressed. My choice has left a readable mark on the world.
 
-00:00:07.890 --> 00:00:12.497
-After seeing the puck, an observer can infer which button was pressed.
+00:00:18.860 --> 00:00:27.660
+Let's change one thing. Disconnect both buttons, and let a fan push the puck randomly left or right. There are still two possible outcomes.
 
-00:00:12.616 --> 00:00:16.220
-The robot has transmitted one bit through the physical world.
+00:00:28.080 --> 00:00:36.816
+But now seeing the puck tells you nothing about my choice. Variety by itself is not control. We need outcomes that depend on the input.
 
-00:00:16.338 --> 00:00:19.277
-That is the basic intuition behind empowerment.
+00:00:37.566 --> 00:00:46.783
+Put those experiments side by side. Both produce the same overall spread of puck positions. Only the working buttons let us send a message.
 
-00:00:19.574 --> 00:00:24.372
-Now disconnect the buttons and let a fan randomly blow the puck left or right.
+00:00:47.203 --> 00:00:58.765
+Mutual information measures how much of our choice survives in the outcome. With two equally likely, perfectly readable buttons, that is one bit, or about point six nine nats.
 
-00:00:24.491 --> 00:00:26.988
-The outcome still has one bit of entropy.
+00:01:00.965 --> 00:01:08.590
+A skill is a button that runs a whole behavior. Give the robot a blue label and keep that label fixed while it moves.
 
-00:00:27.107 --> 00:00:30.066
-Yet it tells us nothing about the chosen button.
+00:01:09.010 --> 00:01:17.159
+Give it yellow, and it can learn a different behavior. The policy sees both its current state and the chosen label at every step.
 
-00:00:30.185 --> 00:00:36.787
-Subtracting the uncertainty that remains after the input is known removes this uncontrollable randomness.
+00:01:17.909 --> 00:01:27.615
+Now collect many runs. Blue leaves a cloud of visited states; yellow leaves another. Forget the individual paths for a moment and look at those clouds.
 
-00:00:36.906 --> 00:00:39.339
-What remains is mutual information.
+00:01:28.035 --> 00:01:36.427
+Where the clouds overlap, the label is hard to guess. As they separate, a state becomes stronger evidence about which skill was running.
 
-00:00:39.636 --> 00:00:47.487
-A learned skill can replace a single button: choose a latent variable, run a policy, and observe a future state.
+00:01:37.177 --> 00:01:47.547
+This is the central idea of DIAYN, pronounced dye in: learn skills whose states make their identities recognizable, before specifying a task reward.
 
-00:00:47.606 --> 00:00:53.989
-Maximizing information over the input distribution gives the capacity of that particular channel.
+00:01:47.967 --> 00:01:58.537
+The method also encourages action randomness within each skill. That flexibility is useful, provided the different skills still leave distinguishable patterns of states.
 
-00:00:54.108 --> 00:00:59.048
-The available skills, the observation, and the time horizon all matter.
+00:02:00.737 --> 00:02:11.095
+Suppose we have four skill labels, all equally likely. Before seeing the robot, a guesser assigns each label probability one quarter. This is the prior.
 
-00:00:59.167 --> 00:01:03.091
-We will use this communication picture to understand DIAYN.
+00:02:11.515 --> 00:02:21.723
+After seeing a state, the guesser updates its probabilities. The probability assigned to the skill that actually ran tells us how much evidence the state provides.
 
-00:01:04.458 --> 00:01:08.609
-In DIAYN, we first draw a skill label from a fixed prior.
+00:02:22.473 --> 00:02:31.881
+Compare the probability after seeing the state with the probability before. Divide the two, then take a logarithm. That gives the intrinsic reward.
 
-00:01:08.728 --> 00:01:13.105
-The same policy network receives both the current state and this label.
+00:02:32.301 --> 00:02:42.371
+Why a ratio? A guess of one quarter was already available without observing anything. We reward the extra evidence created by the robot's behavior.
 
-00:01:13.224 --> 00:01:16.408
-Hold the label fixed while collecting a trajectory.
+00:02:43.121 --> 00:02:52.912
+A perfect guesser would recover mutual information when we average this reward. In practice, we train a neural classifier, so its guesses can be wrong.
 
-00:01:16.527 --> 00:01:24.832
-Different labels should produce state distributions that an observer can distinguish, without being told a downstream task reward.
+00:02:53.332 --> 00:03:03.539
+The resulting average is a lower bound. The missing amount is a nonnegative divergence between the true posterior and our classifier, averaged over states.
 
-00:01:25.130 --> 00:01:29.598
-Our diagram has three colored skills exploring different parts of a room.
+00:03:05.739 --> 00:03:15.003
+Let's put numbers on the picture. The true label is blue. Its prior probability is one quarter, and the classifier now assigns it point eight.
 
-00:01:29.717 --> 00:01:36.575
-If every color visits exactly the same distribution, the state reveals no information about the label.
+00:03:15.423 --> 00:03:25.043
+That is three point two times the prior probability. Taking the natural logarithm gives a positive reward of about one point one six nats.
 
-00:01:36.694 --> 00:01:41.853
-If the distributions become distinct, the label becomes easier to decode.
+00:03:25.793 --> 00:03:34.237
+Now move the state into the overlap. The classifier returns to one quarter for blue, exactly where it started before seeing the state.
 
-00:01:41.972 --> 00:01:48.016
-This is a statement about distributions, not just three hand-picked trajectory endpoints.
+00:03:34.657 --> 00:03:44.683
+The ratio becomes one, and its logarithm becomes zero. A state that reveals nothing about the label earns no information reward in this example.
 
-00:01:48.314 --> 00:01:53.748
-DIAYN also rewards entropy in the action distribution conditioned on the state and skill.
+00:03:45.433 --> 00:03:56.376
+Finally, imagine a confident mistake. The classifier assigns the true blue label probability point zero five, even though it strongly prefers another label.
 
-00:01:53.867 --> 00:01:58.199
-That encourages flexible behavior within each distinguishable skill.
+00:03:56.796 --> 00:04:06.824
+Blue's reward is now negative. Confidence alone is not the target; the observation has to provide evidence for the skill that was actually selected.
 
-00:01:58.318 --> 00:02:05.111
-The canonical information objective combines state-skill mutual information with this action entropy term.
+00:04:09.024 --> 00:04:17.712
+Where do the training labels come from? We chose them ourselves. Sample blue, run the policy, and store the visited states with that blue label.
 
-00:02:05.230 --> 00:02:14.060
-High action entropy alone would just produce randomness; the state discriminator supplies the pressure toward identifiable effects.
+00:04:18.132 --> 00:04:28.021
+These labeled examples train the classifier. It learns which regions of the world each skill tends to visit, without receiving a downstream task reward.
 
-00:02:15.428 --> 00:02:20.282
-Here is the mathematical bridge from information theory to reinforcement learning.
+00:04:28.771 --> 00:04:38.434
+Then the classifier supplies rewards to the policy. States that make blue easier to recognize become attractive when the robot is running the blue skill.
 
-00:02:20.401 --> 00:02:28.278
-Write mutual information as the expected log posterior probability of the skill, minus its log prior probability.
+00:04:38.854 --> 00:04:49.606
+The policy improves, its state cloud changes, and the classifier learns again. Picture a feedback loop between better experiments and a better reader of their effects.
 
-00:02:28.397 --> 00:02:30.248
-The prior is chosen by us.
+00:04:50.356 --> 00:05:01.000
+At first the clouds may nearly coincide. Learning can pull them apart, while the action entropy term allows multiple ways of producing each recognizable pattern.
 
-00:02:30.367 --> 00:02:36.179
-The posterior would require knowing the complete distributions generated by the policies.
+00:05:01.420 --> 00:05:11.273
+This is an optimization process, not a guarantee. A weak classifier can give poor rewards, and the features it sees determine which differences count.
 
-00:02:36.476 --> 00:02:40.143
-Replace that posterior with a trainable classifier.
+00:05:13.473 --> 00:05:23.094
+After training, the labels act like a small menu of behaviors. A later task can try them, select one, or build a longer sequence from several.
 
-00:02:40.262 --> 00:02:44.469
-Add and subtract its log probability inside the expectation.
+00:05:23.514 --> 00:05:33.614
+But the menu need not contain every useful behavior. Learning distinguishable skills does not prove that the robot can solve an arbitrary future task.
 
-00:02:44.588 --> 00:02:51.284
-The leftover term is an expected Kullback Leibler divergence from the true posterior to the classifier.
+00:05:34.364 --> 00:05:44.102
+Return to our buttons, now placed at a junction. Each button takes the robot down a different one-way passage. The choices are perfectly distinguishable.
 
-00:02:51.403 --> 00:02:58.697
-Because this divergence cannot be negative, the classifier expression is a lower bound on the information we wanted.
+00:05:44.522 --> 00:05:54.527
+Yet after leaving the junction, the robot may have very few choices left. Demonstrating control and preserving future control are different objectives.
 
-00:02:58.994 --> 00:03:05.232
-This gives a concrete intrinsic reward: log classifier probability minus log prior.
+00:05:55.277 --> 00:06:05.762
+Keep the picture of the two clouds in mind. DIAYN asks for behaviors whose states reveal which skill produced them. The classifier turns that question into reward.
 
-00:03:05.350 --> 00:03:10.689
-A state earns reward when it is stronger evidence for the sampled skill than the prior alone.
-
-00:03:10.808 --> 00:03:14.067
-The bound becomes tight with a correct classifier.
-
-00:03:14.185 --> 00:03:21.758
-Otherwise, improving the classifier and improving the policy address different sources of error in the same objective.
-
-00:03:23.125 --> 00:03:27.576
-Let us compute the reward instead of treating the formula as decoration.
-
-00:03:27.695 --> 00:03:30.790
-Suppose there are four equally probable skills.
-
-00:03:30.909 --> 00:03:35.801
-Before observing a state, the probability of the chosen skill is one quarter.
-
-00:03:35.920 --> 00:03:44.945
-If the discriminator assigns probability point eight to the correct label afterward, the reward is log three point two, about one point
-
-00:03:45.064 --> 00:03:46.378
-one six nats.
-
-00:03:46.675 --> 00:03:51.904
-If the classifier stays at chance, the ratio is one and the reward is zero.
-
-00:03:52.023 --> 00:03:59.060
-If it gives the true skill probability point zero five, the ratio becomes point two and the reward is negative.
-
-00:03:59.179 --> 00:04:07.531
-The policy is rewarded for evidence about its actual label, not simply for producing any confident classifier prediction.
-
-00:04:07.828 --> 00:04:12.371
-The lab generalizes this example into a noisy categorical channel.
-
-00:04:12.490 --> 00:04:19.845
-Change how much the skill distributions overlap and compare actual mutual information with the variational bound.
-
-00:04:19.964 --> 00:04:25.896
-A miscalibrated decoder can lower the bound even when the underlying skills remain distinct.
-
-00:04:26.015 --> 00:04:31.632
-This is a controlled calculation, not a replication of a locomotion benchmark.
-
-00:04:32.999 --> 00:04:35.761
-The learning loop now has two coupled parts.
-
-00:04:35.880 --> 00:04:42.095
-Sample a label, execute the label-conditioned policy, and store states with their labels.
-
-00:04:42.214 --> 00:04:49.391
-Those labels are free supervision: they came from the experimenter, rather than an external reward function.
-
-00:04:49.509 --> 00:04:53.426
-A discriminator learns to predict them from the observed states.
-
-00:04:53.723 --> 00:05:00.538
-Next, use the discriminator reward inside an entropy-regularized reinforcement learning update.
-
-00:05:00.656 --> 00:05:08.447
-Better policies can produce more separable states, which give the discriminator a clearer classification problem.
-
-00:05:08.566 --> 00:05:13.187
-A more accurate discriminator gives the policy a more faithful signal.
-
-00:05:13.306 --> 00:05:20.366
-Neither update makes the other automatically correct, especially with limited data or function approximation.
-
-00:05:20.663 --> 00:05:26.747
-A practical implementation must keep the skill identity attached to each replay transition.
-
-00:05:26.866 --> 00:05:34.248
-It must also separate the task reward used for later evaluation from the intrinsic reward used during pretraining.
-
-00:05:34.367 --> 00:05:40.545
-Otherwise an apparently unsupervised result can quietly depend on downstream supervision.
-
-00:05:40.664 --> 00:05:49.011
-Our included code computes the information objective exactly, rather than pretending to reproduce the entire training system.
-
-00:05:50.379 --> 00:05:56.150
-The useful product is a repertoire: a skill-conditioned policy together with a decoder.
-
-00:05:56.269 --> 00:06:01.745
-A later task can select skills, compose them, or fine-tune their parameters.
-
-00:06:01.864 --> 00:06:06.963
-But distinguishable behavior is not a promise that every useful task is covered.
-
-00:06:07.082 --> 00:06:12.315
-The features supplied to the discriminator influence which differences are worth learning.
-
-00:06:12.612 --> 00:06:14.626
-There is another subtle distinction.
-
-00:06:14.745 --> 00:06:17.930
-Executing a skill may consume an opportunity.
-
-00:06:18.049 --> 00:06:25.900
-A robot can demonstrate that it knows several ways to leave a platform, while ending up somewhere with few remaining choices.
-
-00:06:26.019 --> 00:06:34.127
-Measuring information transmitted by a chosen skill set and seeking states with many available skills are different optimization
-
-00:06:34.246 --> 00:06:35.058
-problems.
-
-00:06:35.356 --> 00:06:38.901
-Keep three questions separate as the series continues.
-
-00:06:39.020 --> 00:06:41.246
-What behaviors are distinguishable?
-
-00:06:41.364 --> 00:06:44.914
-From which starting states can they actually be executed?
-
-00:06:45.033 --> 00:06:47.265
-And who benefits from those choices?
-
-00:06:47.384 --> 00:06:51.037
-DIAYN provides our starting language for the first question.
-
-00:06:51.156 --> 00:06:59.108
-The geometry and scaling papers address the second; the assistance papers change the agent whose control we care about.
+00:06:06.182 --> 00:06:16.308
+Next, we will ask where a robot should stand so that many such choices remain available. That takes us from learning skills to the geometry of empowerment.

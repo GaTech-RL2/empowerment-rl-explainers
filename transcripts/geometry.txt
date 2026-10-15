@@ -1,53 +1,53 @@
 The Geometry of Empowerment
 Catherine Ji, Vivek Myers, Sergey Levine, Benjamin Eysenbach
 https://arxiv.org/abs/2610.07796
-Original educational narration. Toy examples are not benchmark replications.
+Visual edition 2. Original educational examples. Neural synthetic narration.
 
-00:00:00.000 — Spend a choice or preserve choices
-Consider a junction with three one-way exits. Choosing different skills can reliably take you down different exits, so the junction supports several distinguishable futures. But after taking an exit, you may lose access to the others. Exercising a choice and preserving the opportunity to choose are different behaviors.
+00:00:00.000 — A junction and a dead end
+Place a robot at a junction with three exits. From here it can deliberately reach the blue room, the yellow room, or the pink room. Move it into a dead end with a one-way entrance. The robot still exists, but two of those choices have disappeared. Location changes its opportunities.
 
-Effective empowerment describes the information realized by a specified set of skills and its sampling distribution. Potential empowerment optimizes that information over the available behaviors. A further policy can seek states with high potential empowerment. Notice the two levels: one optimization measures a state's options, while another moves through the world to obtain them.
+At the junction, selecting a skill sends a readable message into the future. At the dead end, different skill labels may all produce the same result. The Geometry of Empowerment separates the control a particular skill family achieves from the best control available at the current starting state.
 
-The Geometry of Empowerment studies this distinction through reachable future-state distributions. The paper's policies are closed-loop skills and its future state is sampled at a discounted random time. Our junction example initially uses a finite endpoint channel to make the information calculation transparent. We will state when we switch between these two settings.
+There is then a second question: how should the robot move to obtain that opportunity? Returning to a useful junction may matter more than immediately exercising a skill. We will build the geometry behind this idea using three rooms. This small example illustrates the mathematics; it is not a reconstruction of the paper's experiments.
 Source / scope: Geometry §3 definitions. The one-way junction is an original finite-channel illustration.
 
-00:01:09.646 — Replace trajectories with distributions
-A trajectory is long and detailed. For this analysis, compress it into a probability distribution over future states. Discounted occupancy assigns weight one minus gamma to the next state, then multiplies subsequent weights by gamma. The weights sum to one, so the result is a genuine distribution rather than an unnormalized visit count.
+00:01:04.084 — A point can represent a distribution
+A skill does not always end in one room. Suppose blue reaches its room half the time, yellow's room one quarter, and pink's room one quarter. Draw those probabilities as three bars. Their heights must add to one. We can represent the same three numbers with a single point inside a triangle.
 
-With three possible outcomes, draw each distribution as a point inside a triangle. A corner means certainty about one outcome. An interior point means a mixture. This triangle is a probability simplex. Distances inside it will describe differences in outcome probabilities, not the physical distances that a robot travels.
+The blue corner means all probability is in blue. Halfway along the blue-yellow edge means half in each, with no probability in pink. The center means equal probability for all three rooms. Moving a point in this triangle changes a distribution, not the robot's physical position.
 
-Each skill gives one point. Randomly choose among the skills and their distributions average into another point. Varying the mixture weights traces their convex hull. This is why geometric language becomes useful: an apparently complicated policy problem can sometimes be examined through a set of reachable distributions and the center induced by a skill mixture.
+The paper uses distributions of future states sampled at a discounted random time, rather than just a fixed endpoint. Near-future states receive more weight. The weights are normalized to sum to one. Once we have a distribution for each skill, the same probability geometry applies to those future-state occupancies.
 Source / scope: Geometry §3 discounted occupancy and §4 information geometry. Triangle construction is an original three-outcome example.
 
-00:02:18.191 — Mutual information is an average KL radius
-Why does this picture involve information rather than an arbitrary geometric distance? For each skill, compare its outcome distribution with the mixture over skills. The Kullback Leibler divergence measures how much that skill-specific distribution differs from the mixture. Average these divergences using the skill prior, and the expression is exactly mutual information.
+00:02:06.848 — Information is separation from the average
+Give each skill its own point. If blue, yellow, and pink reliably reach different rooms, their points sit near different corners of our probability triangle. Now choose a skill at random. The overall outcome distribution is the weighted average of the three points. Equal sampling places that mixture at the center.
 
-That average is important. For an arbitrary prior, mutual information is not equal to the largest divergence. If we optimize the prior for a fixed finite channel, a dual description becomes available: find a reference distribution that minimizes the largest divergence from the channel's rows. This is an information radius.
+Compare a skill's outcome distribution with that average. A large difference means observing the outcome provides evidence about which skill was chosen. The relevant difference is a Kullback Leibler divergence, or KL. Mutual information is the sampling-weighted average of these divergences, not the largest one.
 
-At a capacity-achieving solution, active input symbols touch the relevant outer boundary; unused symbols cannot improve the optimum. Our lab solves the finite-channel optimization numerically and checks its upper and lower bounds. The picture supplies intuition for the paper's broader occupancy geometry, while avoiding the mistaken claim that every triangle's Euclidean area equals empowerment.
+Now slide all three skill points toward the center. Their outcomes become harder to distinguish, so the information falls. When they coincide, it is zero. This explains why three names do not necessarily give three choices. What matters is the difference between the distributions those names can actually produce.
 Source / scope: Geometry §4.1; standard finite-channel information-radius dual, derived with original probability-simplex diagrams.
 
-00:03:30.529 — Count distinguishable outcomes, not labels
-Here are three sanity checks. First, if every input deterministically selects one of three distinct outputs, capacity is log three. Add ten new input labels that duplicate existing outputs and capacity does not increase. Labels are cheap; distinguishable consequences are what carry information.
+00:03:12.932 — Count effects, not labels
+Add a fourth skill, colored teal, that does exactly what blue does. We have increased the number of labels, but added no new physical effect. If we optimize how often each label is selected, the channel capacity stays the same. Duplicating a button does not create a new distinguishable outcome.
 
-Second, suppose two buttons are confused with probability epsilon. The binary symmetric channel has capacity log two minus binary entropy. At zero noise, control is reliable. At one-half noise, the output is independent of the input and capacity vanishes. A perfectly predictable inversion would still transmit information, so randomness and inversion must not be confused.
+Noise also shrinks control. Consider just blue and yellow, and gradually increase the chance that each button produces the other button's outcome. At a fifty-fifty outcome for either input, the buttons become indistinguishable. Outcome randomness remains, but information about our choice has vanished.
 
-Third, imagine a machine that samples uniformly from a thousand outcomes regardless of the chosen button. Its future-state entropy is large, yet its empowerment through those buttons is zero. These examples explain why counting visited states or measuring visual diversity alone is insufficient. The causal dependence on the selected behavior is essential to this channel calculation.
+Capacity lets us optimize the input probabilities too. For a fixed finite channel, it equals the smallest possible worst-case KL distance to a reference distribution. Think of finding the best center for a KL information radius. This is a capacity identity after optimization, not a formula replacing every fixed-prior average.
 Source / scope: Original exact categorical examples. The deterministic reachability interpretation is discussed in Geometry appendix B.1.
 
-00:04:42.383 — Information geometry is not reward geometry
-Now give each state a reward. The value of an occupancy is its dot product with the reward vector. That introduces a task-specific direction in the simplex. Information geometry asks whether outcomes are distinguishable; reward geometry asks whether those distinctions improve the particular quantity we care about.
+00:04:19.610 — Why more options is not every reward
+Suppose our three rooms offer very different futures. High empowerment favors keeping those futures distinguishable and available. It does not say which room you personally want. If your only reward is in blue, an agent must still learn that preference. A wide menu and the right order are different pieces of information.
 
-In our toy example, a control can reliably set many tiny values of an indicator light, while another control opens a useful door. The light may offer many distinguishable outcomes and little task value. Increasing measurement precision can amplify this mismatch. Information is sensitive to distinguishability, even when every change is irrelevant to the selected task.
+The reachable set matters too. Imagine a fourth room behind a sealed wall. Nothing in the robot's current action repertoire reaches it. An information objective over existing skills cannot make that missing option appear by definition. Learning new dynamics or new skills is an additional problem.
 
-The paper proves a positive adaptation connection under a specified tabular reward distribution, and also gives limitations for continuous states and uneven reward priors. Treat these as conditional mathematical statements. They do not imply that any high-empowerment policy will solve any future task, or that all controllable variables are equally useful to represent.
+So read the geometry as a description of a particular control channel: its starting state, available behaviors, observations, and horizon all shape the picture. Changing any of those can change the capacity. This precision keeps the appealing phrase 'many options' connected to something we can actually calculate and test.
 Source / scope: Geometry §4.3 and appendices F–H: adaptation result and limitations. Indicator-light counterexample is an original teaching illustration.
 
-00:05:54.081 — From a geometric object to an algorithm
-To turn this theory into an experiment, write down the channel first. Specify the starting state, the skill family, the future-state observation, and the horizon. Changing any one of these changes what counts as control. Two empowerment curves are not directly comparable if they measure different channels.
+00:05:26.206 — Two jobs for two policies
+We can now separate two jobs. Inside a chosen state, skill policies discover different futures. Outside that calculation, a preparation policy moves toward useful starting states. In our example, the preparation policy returns to the junction. The skill policy then chooses which exit to take. The two policies solve different problems.
 
-Next, separate an estimator from the ideal capacity. A learned decoder may provide a lower bound on the information realized by a limited skill set. That information is itself no larger than the best capacity available in the full policy class. Approximation error, incomplete skills, and optimization error create distinct gaps.
+The preparation policy needs a score for each state: how much control could I exercise from here? Computing that score exactly is usually difficult. A learned skill family and decoder can estimate part of it. But poor skills may make a promising junction look less useful than it really is.
 
-Finally, imagine rewarding another policy for reaching states where this estimate is high. We have arrived at the outer optimization promised at the beginning. The geometry identifies what to measure and warns about reward mismatch. The next paper develops a practical two-policy recipe that uses skill learning to estimate empowerment while learning where to go.
+Remember the triangle: skills are distributions, their mixture is an average, and information measures how distinguishable the skill-conditioned outcomes are. Capacity optimizes the available choices. The next paper turns this two-level picture into a scalable learning system, with approximations for the skill, the decoder, and the value of preparing to act.
 Source / scope: Synthesis of Geometry §3–4 and Scaling §4. Bounds refer to exact population objectives, not arbitrary fitted neural estimates.
 

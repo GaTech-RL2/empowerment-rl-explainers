@@ -2,30 +2,30 @@
 [CHAPTER]
 TIMEBASE=1/1000
 START=0
-END=63982
-title=Control is a communication channel
+END=60065
+title=Can you tell which button I pressed?
 [CHAPTER]
 TIMEBASE=1/1000
-START=63982
-END=134952
-title=Make a skill recognizable from its states
+START=60065
+END=119837
+title=Turn a button into a skill
 [CHAPTER]
 TIMEBASE=1/1000
-START=134952
-END=202650
-title=Turn mutual information into a reward
+START=119837
+END=184839
+title=Build a reward from a guessing game
 [CHAPTER]
 TIMEBASE=1/1000
-START=202650
-END=272524
-title=A numerical reward you can check
+START=184839
+END=248124
+title=Watch the reward change
 [CHAPTER]
 TIMEBASE=1/1000
-START=272524
-END=349903
-title=Two optimizers, one feedback loop
+START=248124
+END=312573
+title=Learn the behavior and the guesser
 [CHAPTER]
 TIMEBASE=1/1000
-START=349903
-END=420000
-title=Diverse skills are only the beginning
+START=312573
+END=377608
+title=A repertoire is a beginning

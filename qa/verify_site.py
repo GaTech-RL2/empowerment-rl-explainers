@@ -16,7 +16,11 @@ with sync_playwright() as p:
     for i in range(6):
         page.evaluate('(i)=>Course.selectEpisode(i)',i)
         page.wait_for_function('document.querySelector("video").readyState >= 1')
-        assert abs(page.eval_on_selector('video','v=>v.duration')-420)<.15
+        duration=page.evaluate('(i)=>EPISODES[i].duration',i)
+        assert 300<=duration<=420
+        assert abs(page.eval_on_selector('video','v=>v.duration')-duration)<.15
+        assert not page.locator('.follow').evaluate('el=>el.open')
+        assert page.eval_on_selector('video','v=>v.textTracks[0].mode')=='disabled'
         assert page.locator('.chapter-button').count()==6
         page.evaluate('Course.seekChapter(5)')
         page.wait_for_function('document.querySelector("video").currentTime > 300')
@@ -33,7 +37,7 @@ with sync_playwright() as p:
                 assert 'NaN' not in text and 'Infinity' not in text,(i,text)
             page.locator('#reset-lab').click()
         page.screenshot(path=str(ROOT/f'qa/lab-{i+1}.png'),full_page=True)
-        reports.append({'episode':i+1,'duration':420,'chapters':6,'derivations':18,'sliders':'all boundaries passed'})
+        reports.append({'episode':i+1,'duration':duration,'chapters':6,'derivations':18,'sliders':'all boundaries passed'})
     # Exact agreement between independently implemented Python and JS formulas.
     fixtures=[]
     for k in [2,3,5]:

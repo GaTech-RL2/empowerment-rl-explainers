@@ -1,303 +1,143 @@
 1
-00:00:00,453 --> 00:00:05,817
-A camera sees a robot, moving shadows, a door, and a changing display.
+00:00:00,700 --> 00:00:11,701
+A robot pushes a puck across a table. Its camera also sees a patterned wall, and a fan blows across the surface. Which details should its representation keep?
 
 2
-00:00:05,931 --> 00:00:09,341
-Which features should a control representation retain?
+00:00:12,121 --> 00:00:21,464
+The puck position matters because the robot can change it. The wind matters because it changes what a push will do. The wallpaper might not matter at all.
 
 3
-00:00:09,454 --> 00:00:11,623
-Keeping every pixel is expensive.
+00:00:22,214 --> 00:00:35,765
+Now animate the wallpaper independently. Millions of pixels change, although nothing about the robot's useful choices has changed. A pixel reconstruction objective still has to explain that motion.
 
 4
-00:00:11,736 --> 00:00:20,413
-Discarding every uncontrollable variable is also wrong: the robot may not control the wind, but wind can determine which actions move it
+00:00:36,185 --> 00:00:44,409
+An objective based on control asks a different question: which differences help predict the effects of what the agent can choose to do?
 
 5
-00:00:20,526 --> 00:00:21,552
-toward a target.
+00:00:45,159 --> 00:00:57,426
+Learning to Perceive the World Through Control studies how empowerment objectives shape representations. The target is not simply every moving object, or everything outside the robot.
 
 6
-00:00:21,835 --> 00:00:24,090
-Use three conceptual components.
+00:00:57,846 --> 00:01:04,357
+The puck, wind, and wallpaper separate controllable state, relevant context, and irrelevant nuisance.
 
 7
-00:00:24,203 --> 00:00:27,245
-One changes in response to the agent's actions.
+00:01:06,557 --> 00:01:17,180
+First, freeze the wind. Choose a leftward or rightward push and watch the puck respond. The chosen action leaves a recognizable effect in the puck position.
 
 8
-00:00:27,358 --> 00:00:32,117
-A second evolves on its own but influences the first component's dynamics.
+00:01:17,600 --> 00:01:29,078
+A useful representation should preserve that distinction. If both outcomes are encoded identically, the representation erases control that the robot actually had.
 
 9
-00:00:32,230 --> 00:00:35,832
-A third evolves independently and has no effect on control.
+00:01:29,828 --> 00:01:40,084
+Next, keep the same push but reverse the wind. The future puck position changes. The robot did not choose the wind, yet needs it to predict the outcome.
 
 10
-00:00:35,945 --> 00:00:39,853
-The displayed factorization makes those distinctions precise.
+00:01:40,504 --> 00:01:51,789
+This is the crucial middle category. Uncontrollable does not mean irrelevant. Removing the wind would make the same encoded state and action produce confusing predictions.
 
 11
-00:00:39,966 --> 00:00:46,094
-It is a model assumption about dynamics, not a label we can assign from visual appearance alone.
+00:01:52,539 --> 00:02:03,457
+Finally, change only the wallpaper. Keep the puck, wind, and chosen push fixed. The physically relevant transition stays the same despite a very different image.
 
 12
-00:00:46,377 --> 00:00:52,973
-Learning to Perceive the World Through Control studies representations induced by empowerment-based skill learning.
+00:02:03,877 --> 00:02:18,864
+The paper's representation framework separates relevant control structure from exogenous structure. Our three-layer picture illustrates why a representation must retain context while ignoring independent visual clutter.
 
 13
-00:00:53,087 --> 00:01:00,806
-Its key question is whether those representations can ignore control-irrelevant variation while retaining the features needed to
+00:02:21,064 --> 00:02:33,618
+Imagine two observations with different wallpaper but identical puck position and wind. From either observation, the same action produces the same distribution over relevant futures.
 
 14
-00:01:00,919 --> 00:01:03,018
-distinguish what the agent can do.
+00:02:34,038 --> 00:02:45,087
+For predicting those futures, the observations can share a representation. This is the forward-looking idea: compare what can happen next under each available choice.
 
 15
-00:01:03,131 --> 00:01:09,614
-Our wind-and-display example makes the relevant distinction before we examine the mathematical assumptions.
+00:02:45,837 --> 00:02:57,184
+Now compare observations with opposite wind. Apply the same rightward push in both. Their future-state distributions differ, even though the initial puck positions match.
 
 16
-00:01:10,917 --> 00:01:16,313
-Start with the skill decoder from earlier lessons, but factor it through two encoders.
+00:02:57,604 --> 00:03:08,922
+Merging these observations would hide a distinction needed for control. The representation must retain enough context to separate those different consequences of the same action.
 
 17
-00:01:16,427 --> 00:01:20,889
-One represents the initial state and the other represents the future state.
+00:03:09,672 --> 00:03:21,276
+Notice that we compare distributions, not just one sampled outcome. Two noisy transitions can land in the same place once while still following different underlying dynamics.
 
 18
-00:01:21,002 --> 00:01:25,962
-Together they retain the information needed to infer which skill produced the outcome.
+00:03:21,696 --> 00:03:32,661
+A forward equivalence is about matching the appropriate future behavior across actions. A few visually similar examples are not sufficient evidence for that equivalence.
 
 19
-00:01:26,076 --> 00:01:29,336
-These are called forward and backward representations.
+00:03:34,861 --> 00:03:44,133
+There is also a backward-looking question. Given an observed outcome, what does it tell us about the earlier state and the action or skill that produced it?
 
 20
-00:01:29,620 --> 00:01:32,006
-Bayes rule makes their target explicit.
+00:03:44,553 --> 00:03:54,963
+This is the decoding direction we saw in DIAYN. The final puck position can be evidence about a preceding push, even before we name a downstream task.
 
 21
-00:01:32,119 --> 00:01:39,426
-Multiply the skill prior by the probability that the skill reaches the observed outcome, then normalize across skills.
+00:03:55,713 --> 00:04:07,840
+Two outcomes are equivalent in this direction when they carry the same relevant predecessor evidence. Changing independent wallpaper should not suddenly identify a different preceding skill.
 
 22
-00:01:39,539 --> 00:01:45,601
-A feature matters to this posterior only if it changes the relative evidence for skill identities.
+00:04:08,260 --> 00:04:18,660
+But moving the puck may change that evidence. The forward and backward views preserve different aspects of the same relationship between choices and their consequences.
 
 23
-00:01:45,714 --> 00:01:51,172
-This creates a representation-learning signal without supplying a downstream task label.
+00:04:19,410 --> 00:04:33,051
+The paper combines information objectives with minimality conditions to characterize which distinctions a representation retains. Minimality prevents it from simply keeping every irrelevant detail too.
 
 24
-00:01:51,455 --> 00:01:53,651
-There is a crucial qualification.
+00:04:33,471 --> 00:04:45,545
+These are results under specified assumptions and optimality conditions. They do not say that an arbitrary neural encoder automatically discovers the desired factors during training.
 
 25
-00:01:53,764 --> 00:02:00,891
-A sufficiently large network could predict the correct posterior while also storing arbitrary irrelevant details.
+00:04:47,745 --> 00:04:55,542
+Let a blue skill move the puck left and a yellow skill move it right. Add a background light that independently flashes on or off.
 
 26
-00:02:01,004 --> 00:02:09,543
-The theory therefore studies minimal sufficient representations: representations that preserve exactly the distinctions needed by the
+00:04:55,962 --> 00:05:05,007
+Each skill now has twice as many visible outcomes. Yet after seeing the puck, the light gives no additional evidence about which skill was chosen.
 
 27
-00:02:09,657 --> 00:02:10,482
-posterior.
+00:05:05,757 --> 00:05:18,296
+Write the information as a log ratio: the outcome probability under a skill, divided by its probability before knowing the skill. The independent light contributes the same factor to both.
 
 28
-00:02:10,596 --> 00:02:18,803
-Correct prediction alone is not the same as compression, and a practical neural network is not guaranteed to satisfy minimality.
+00:05:18,716 --> 00:05:29,093
+Those factors cancel. So the exact mutual information is unchanged, even though the full observation has more entropy and contains more varying pixels.
 
 29
-00:02:20,106 --> 00:02:26,160
-Think of the forward representation as describing the control possibilities available from a state.
+00:05:29,843 --> 00:05:39,411
+Now connect the light to the wind, or let it reveal the selected skill. The independence assumption breaks, and that cancellation may no longer apply.
 
 30
-00:02:26,273 --> 00:02:31,417
-Two versions of a machine might use different button names while offering the same effects.
+00:05:39,831 --> 00:05:45,315
+Test the assumption: does this feature change dynamics, or reveal the selected skill?
 
 31
-00:02:31,531 --> 00:02:39,671
-If actions can be matched by their transition distributions, the superficial interface labels should not define different underlying
+00:05:47,515 --> 00:05:59,365
+A useful audit changes one part of the scene at a time. Change wallpaper only: the control representation should remain stable when that variation is genuinely irrelevant.
 
 32
-00:02:39,784 --> 00:02:40,835
-capabilities.
+00:05:59,785 --> 00:06:11,347
+Change wind instead: predictions should adjust because the dynamics changed. Good invariance preserves the distinctions needed for action while removing the ones that do not help.
 
 33
-00:02:41,118 --> 00:02:48,403
-In our diagram, one panel maps the upper button to opening a gate, while another swaps the physical labels.
+00:06:12,097 --> 00:06:22,048
+Then test actual behavior. Can a policy using the representation still select different puck outcomes? Does it adapt correctly when the wind changes?
 
 34
-00:02:48,516 --> 00:02:52,437
-The useful comparison pairs actions by their consequences.
+00:06:22,468 --> 00:06:29,221
+Test control and prediction directly; a tidy embedding alone does not establish either capability.
 
 35
-00:02:52,551 --> 00:03:00,809
-A controller still needs to issue the correct button in each interface, but a representation of the available control structure can
+00:06:29,971 --> 00:06:42,738
+Return to the three layers. Puck position records a controllable effect. Wind supplies necessary context. Independent wallpaper contributes detail without changing the control problem.
 
 36
-00:03:00,923 --> 00:03:04,115
-identify the equivalent starting situations.
-
-37
-00:03:04,399 --> 00:03:10,267
-The paper formalizes such equivalences under its policy and representation assumptions.
-
-38
-00:03:10,380 --> 00:03:14,959
-The point is not that two states with similar pictures must have the same embedding.
-
-39
-00:03:15,073 --> 00:03:21,463
-It is that a specific relation between their available transition distributions can justify aliasing.
-
-40
-00:03:21,576 --> 00:03:27,876
-Changing a real obstacle, an actuator limit, or the effect of an action may break that relation.
-
-41
-00:03:29,179 --> 00:03:36,837
-The backward representation answers a different question: what does observing this outcome tell us about the skill that brought us here?
-
-42
-00:03:36,950 --> 00:03:42,611
-Suppose two outcomes occur in the same proportion under every skill from a given starting state.
-
-43
-00:03:42,724 --> 00:03:49,800
-Their likelihoods differ by a shared factor, so that factor cancels when computing the posterior over skills.
-
-44
-00:03:50,084 --> 00:03:58,197
-Under the corresponding conditions across starting states, a minimal backward representation can identify these outcomes.
-
-45
-00:03:58,310 --> 00:04:01,512
-Yet their future control possibilities might differ.
-
-46
-00:04:01,625 --> 00:04:08,607
-Arriving at two locations by indistinguishable routes does not imply that the same exits will be available afterward.
-
-47
-00:04:08,721 --> 00:04:12,612
-Incoming evidence and outgoing control are separate structures.
-
-48
-00:04:12,895 --> 00:04:18,327
-This is why forcing the two encoders to be identical can discard useful distinctions.
-
-49
-00:04:18,440 --> 00:04:26,317
-In the companion, compare small tables of skill-conditioned probabilities and directly compute the posterior for each outcome.
-
-50
-00:04:26,431 --> 00:04:34,053
-You can see when columns carry the same evidence even though we assign the resulting states different future options in the toy model.
-
-51
-00:04:35,356 --> 00:04:39,148
-We can see the core cancellation in a simple probability model.
-
-52
-00:04:39,261 --> 00:04:43,976
-Let the outcome contain a controllable coordinate and an independent nuisance.
-
-53
-00:04:44,090 --> 00:04:52,191
-If the nuisance has the same distribution for every skill, its probability appears in both the numerator and denominator of Bayes rule.
-
-54
-00:04:52,304 --> 00:04:56,392
-It cancels, leaving the same posterior without the nuisance.
-
-55
-00:04:56,675 --> 00:05:02,278
-That calculation explains why nuisance variation need not help skill classification.
-
-56
-00:05:02,391 --> 00:05:06,269
-It does not prove that any finite-data neural network will ignore it.
-
-57
-00:05:06,382 --> 00:05:15,430
-A network might memorize correlations, a policy might condition unnecessarily on the nuisance, or a restricted skill set might fail to
-
-58
-00:05:15,544 --> 00:05:18,434
-expose important controllable distinctions.
-
-59
-00:05:18,717 --> 00:05:28,256
-The paper's invariance result adds explicit conditions, including its structured dynamics, optimal-posterior analysis, and minimality
-
-60
-00:05:28,370 --> 00:05:31,445
-assumptions for policies and representations.
-
-61
-00:05:31,558 --> 00:05:32,964
-Those conditions matter.
-
-62
-00:05:33,077 --> 00:05:41,507
-In our lab, independent duplicate observation channels leave information unchanged, while action-dependent changes can alter it.
-
-63
-00:05:41,620 --> 00:05:47,920
-This isolates one algebraic mechanism without presenting the toy calculation as the full theorem.
-
-64
-00:05:49,223 --> 00:05:54,509
-A good representation experiment needs both invariance and sensitivity tests.
-
-65
-00:05:54,622 --> 00:06:01,994
-Vary an irrelevant display while holding the control problem fixed: the representation should ideally stay stable.
-
-66
-00:06:02,108 --> 00:06:10,342
-Then change a door's availability or an actuator's effect: the representation should preserve the distinction if it changes the relevant
-
-67
-00:06:10,455 --> 00:06:11,669
-skill posterior.
-
-68
-00:06:11,952 --> 00:06:14,863
-Also test the policy and decoder together.
-
-69
-00:06:14,976 --> 00:06:23,155
-An encoder that ignores an important variable can still look compact, and a highly accurate classifier can still store irrelevant
-
-70
-00:06:23,269 --> 00:06:24,160
-information.
-
-71
-00:06:24,273 --> 00:06:30,535
-Compression, predictive sufficiency, and downstream control are related but different properties.
-
-72
-00:06:30,649 --> 00:06:35,477
-Treating any one metric as a complete answer hides the assumptions behind the theory.
-
-73
-00:06:35,761 --> 00:06:42,629
-The lesson is that empowerment-based interaction offers a principled route toward control-centered representations.
-
-74
-00:06:42,742 --> 00:06:48,896
-It does not remove the need to specify what counts as relevant control or to verify the learned model.
-
-75
-00:06:49,009 --> 00:06:57,752
-Next we will change the subject of empowerment: instead of expanding the robot's own choices, we will ask the robot to expand a human's
-
-76
-00:06:57,865 --> 00:06:59,150
-effective control.
+00:06:43,158 --> 00:06:50,007
+The assumptions support the theory; interventions let us investigate these distinctions experimentally.

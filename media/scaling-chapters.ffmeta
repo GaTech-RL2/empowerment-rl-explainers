@@ -2,30 +2,30 @@
 [CHAPTER]
 TIMEBASE=1/1000
 START=0
-END=69455
-title=A workshop and a box of skills
+END=64867
+title=First reach the workshop
 [CHAPTER]
 TIMEBASE=1/1000
-START=69455
-END=140398
-title=Decode the skill from a future outcome
+START=64867
+END=128285
+title=Measure a skill through its effect
 [CHAPTER]
 TIMEBASE=1/1000
-START=140398
-END=208160
-title=A skill value becomes an empowerment estimate
+START=128285
+END=194829
+title=Replace repeated experiments with a value
 [CHAPTER]
 TIMEBASE=1/1000
-START=208160
-END=274590
-title=Collect data for both levels
+START=194829
+END=262434
+title=Prepare, then demonstrate
 [CHAPTER]
 TIMEBASE=1/1000
-START=274590
-END=345841
-title=Choose the variables that count as control
+START=262434
+END=332566
+title=Watch the measurement bottleneck
 [CHAPTER]
 TIMEBASE=1/1000
-START=345841
-END=420000
-title=What scaling does—and does not—establish
+START=332566
+END=401536
+title=Check what improved

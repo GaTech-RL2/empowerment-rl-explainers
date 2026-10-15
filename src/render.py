@@ -25,46 +25,29 @@ def equation(math,color):
     if scale<1:im=im.resize((round(im.width*scale),round(im.height*scale)),Image.Resampling.LANCZOS)
     return im
 
-def frame(ep,t,subtitles=True):
-    ci=max(0,min(len(ep['chapters'])-1,bisect.bisect_right([c['start'] for c in ep['chapters']],t)-1))
-    ch=ep['chapters'][ci];local=t-ch['start'];p=clamp(local/ch['duration'])
-    beats=ch.get('beat_starts',[ch['start']+ch['duration']*k/3 for k in range(3)])
-    b=max(0,min(2,bisect.bisect_right(beats,t)-1))
-    im=BASE.copy();c=Canvas(im);color=ep['color']
-    c.text(55,26,f'{ep["number"]}  /  {ep["short"].upper()}',20,color,True)
-    c.text(1543,26,f'EMPOWERMENT / VISUAL RL     {ci+1:02} / {len(ep["chapters"]):02}',18,MUTED,anchor='ra')
-    size=42
-    while c.d.textlength(ch['title'],font=font(size,True))>1490:size-=1
-    c.text(55,72,ch['title'],size,INK,True)
-    c.line([(53,134),(1546,134)],LINE,1)
-    scene(c,ch['visual'],p,b,ep)
-    c.d.rounded_rectangle((1004,159,1548,641),radius=18,fill=PANEL,outline=LINE,width=1)
-    c.text(1030,178,'BUILD THE ARGUMENT',17,MUTED,True)
-    for j,step in enumerate(ch['steps']):
-        y=222+j*132;active=j==b;done=j<b
-        co=color if active else MUTED if done else '#60738f'
-        c.circle(1036,y+17,12,co,co if active else None,2)
-        c.text(1036,y+17,str(j+1),15,BG if active else co,True,'mm')
-        height=c.wrap(1060,y,step['title'],452,22,INK if active else co,active,1.24)
-        c.wrap(1060,y+height+9,step['explain'],447,19,MUTED if j<=b else '#596b84',leading=1.27)
-    c.line([(55,665),(1545,665)],LINE,1)
-    eq=equation(ch['steps'][b]['math'],color);im.paste(eq,((W-eq.width)//2,694+(79-eq.height)//2),eq)
-    c.text(800,797,f'{ep["short"]} · {ep["year"]}    /    Primary sources and full derivations in the companion',17,MUTED,anchor='mm')
-    if subtitles:
-        subs=ep.get('subtitles',[]);si=bisect.bisect_right([x['start'] for x in subs],t)-1
-        if si>=0 and t<subs[si]['end']+.12:
-            s=subs[si]['text'];width=c.d.textlength(s,font=font(24))
-            if width<=1470:c.text(800,843,s,24,INK,anchor='mm')
-            else:
-                words=s.split();mid=len(words)//2
-                c.text(800,831,' '.join(words[:mid]),22,INK,anchor='mm');c.text(800,860,' '.join(words[mid:]),22,INK,anchor='mm')
-    c.d.rectangle((0,892,W,H),fill=LINE);c.d.rectangle((0,892,W*t/ep['duration'],H),fill=color)
-    for chapter in ep['chapters']:
-        x=W*chapter['start']/ep['duration'];c.line([(x,892),(x,900)],BG,2)
-    if local<.22:im=Image.blend(BASE,im,ease(local/.22))
+def frame(ep,t,subtitles=False):
+    from film_scenes import draw_film
+    cues=ep['cues'];i=max(0,bisect.bisect_right([q['start'] for q in cues],t)-1)
+    cue=cues[i];elapsed=t-cue['start']
+    # Complete a physical demonstration, then give the viewer time to inspect it.
+    p=clamp(elapsed/min(6.0,(cue['end']-cue['start'])*.65))
+    im=Image.new('RGB',(W,H),BG);c=Canvas(im)
+    draw_film(c,ep['id'],cue['chapter'],cue['beat'],cue['part'],p)
+    if i and 0<=elapsed<.38:
+        previous=cues[i-1];old=Image.new('RGB',(W,H),BG)
+        draw_film(Canvas(old),ep['id'],previous['chapter'],previous['beat'],previous['part'],1)
+        im=Image.blend(old,im,ease(elapsed/.38));c=Canvas(im)
+    c.text(48,35,f'{ep["number"]} / {ep["short"].upper()}',18,ep['color'])
+    c.text(1552,35,f'{cue["chapter"]+1} / 6',18,MUTED,anchor='ra')
+    # Captions are selectable tracks. The picture has no burnt-in narration.
+    c.d.rectangle((0,895,W,H),fill=LINE)
+    c.d.rectangle((0,895,W*clamp(t/ep['duration']),H),fill=ep['color'])
+    for ch in ep['chapters']:
+        x=W*ch['start']/ep['duration'];c.line([(x,895),(x,900)],BG,2)
+    if t<.5:im=Image.blend(Image.new('RGB',(W,H),BG),im,ease(t/.5))
     return im
 
-def render(ep,fps=20):
+def render(ep,fps=24):
     out=ROOT/'media'/f'{ep["id"]}.mp4';duration=ep['duration']
     args=['ffmpeg','-y','-v','error','-f','rawvideo','-pixel_format','rgb24','-video_size',f'{W}x{H}','-framerate',str(fps),'-i','-',
           '-i',str(ROOT/'media'/f'{ep["id"]}.wav'),'-i',str(ROOT/'captions'/f'{ep["id"]}.srt'),'-i',str(ROOT/'media'/f'{ep["id"]}-chapters.ffmeta'),
@@ -88,7 +71,7 @@ def previews(eps):
         for i,ch in enumerate(ep['chapters']):
             for b in range(3):
                 starts=ch['beat_starts'];end=starts[b+1] if b<2 else ch['end']
-                im=frame(ep,starts[b]+(end-starts[b])*.55,False)
+                im=frame(ep,starts[b]+(end-starts[b])*.8,False)
                 if b==1:im.save(ROOT/'previews'/f'{ep["id"]}-{i+1:02}.png')
                 thumbs.append(im.resize((400,225)))
             if i==0:frame(ep,ch['start']+ch['duration']*.28,False).save(ROOT/'previews'/f'{ep["id"]}.jpg',quality=92)
@@ -98,7 +81,7 @@ def previews(eps):
     print('Prepared full-resolution chapter previews and derivation storyboards.')
 
 if __name__=='__main__':
-    ap=argparse.ArgumentParser();ap.add_argument('--episode');ap.add_argument('--previews',action='store_true');ap.add_argument('--fps',type=int,default=20);a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--episode');ap.add_argument('--previews',action='store_true');ap.add_argument('--fps',type=int,default=24);a=ap.parse_args()
     eps=json.loads((ROOT/'content.json').read_text())
     if a.episode:eps=[e for e in eps if e['id']==a.episode]
     if a.previews:previews(eps)

@@ -6,14 +6,18 @@ def verify(ep):
     path=ROOT/'media'/f'{ep["id"]}.mp4'
     probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-show_streams','-show_chapters','-of','json',str(path)]))
     streams={s['codec_type']:s for s in probe['streams']}
-    assert abs(float(probe['format']['duration'])-420)<.03
+    assert 300<=ep['duration']<=420
+    assert abs(float(probe['format']['duration'])-ep['duration'])<.1
     assert streams['video']['width']==1600 and streams['video']['height']==900
     assert streams['video']['codec_name']=='h264' and streams['audio']['codec_name']=='aac'
     assert streams['subtitle']['codec_name']=='mov_text'
     assert len(probe['chapters'])==6
+    assert streams['video']['r_frame_rate']=='24/1'
+    assert len(ep['cues'])==36 and ep.get('edition')==2
+    assert all(c['start']<c['end'] for c in ep['cues'])
     for c in ep['chapters']:
         assert c['start']<=c['beat_starts'][0]<c['beat_starts'][1]<c['beat_starts'][2]<c['end']
-    assert all(0<=s['start']<s['end']<=420 for s in ep['subtitles'])
+    assert all(0<=s['start']<s['end']<=ep['duration'] for s in ep['subtitles'])
     decoded=subprocess.run(['ffmpeg','-v','error','-threads','2','-i',str(path),'-map','0:v:0','-map','0:a:0','-f','null','-'],capture_output=True,text=True)
     assert decoded.returncode==0 and not decoded.stderr,decoded.stderr
     volume=subprocess.run(['ffmpeg','-hide_banner','-i',str(path),'-map','0:a:0','-af','volumedetect','-f','null','-'],capture_output=True,text=True)

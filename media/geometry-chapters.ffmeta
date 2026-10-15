@@ -2,30 +2,30 @@
 [CHAPTER]
 TIMEBASE=1/1000
 START=0
-END=69646
-title=Spend a choice or preserve choices
+END=64084
+title=A junction and a dead end
 [CHAPTER]
 TIMEBASE=1/1000
-START=69646
-END=138191
-title=Replace trajectories with distributions
+START=64084
+END=126848
+title=A point can represent a distribution
 [CHAPTER]
 TIMEBASE=1/1000
-START=138191
-END=210529
-title=Mutual information is an average KL radius
+START=126848
+END=192932
+title=Information is separation from the average
 [CHAPTER]
 TIMEBASE=1/1000
-START=210529
-END=282383
-title=Count distinguishable outcomes, not labels
+START=192932
+END=259610
+title=Count effects, not labels
 [CHAPTER]
 TIMEBASE=1/1000
-START=282383
-END=354081
-title=Information geometry is not reward geometry
+START=259610
+END=326206
+title=Why more options is not every reward
 [CHAPTER]
 TIMEBASE=1/1000
-START=354081
-END=420000
-title=From a geometric object to an algorithm
+START=326206
+END=396661
+title=Two jobs for two policies

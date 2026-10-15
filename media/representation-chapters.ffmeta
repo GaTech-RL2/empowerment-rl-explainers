@@ -2,30 +2,30 @@
 [CHAPTER]
 TIMEBASE=1/1000
 START=0
-END=70463
-title=More pixels do not mean more control
+END=65657
+title=What should the robot remember?
 [CHAPTER]
 TIMEBASE=1/1000
-START=70463
-END=139653
-title=The decoder is also a representation model
+START=65657
+END=140164
+title=Separate the cause from the context
 [CHAPTER]
 TIMEBASE=1/1000
-START=139653
-END=208726
-title=Forward asks: what can happen next?
+START=140164
+END=213961
+title=Look forward: what can happen next?
 [CHAPTER]
 TIMEBASE=1/1000
-START=208726
-END=274903
-title=Backward asks: how could I get here?
+START=213961
+END=286845
+title=Look backward: what could have caused it?
 [CHAPTER]
 TIMEBASE=1/1000
-START=274903
-END=348770
-title=Why independent noise can cancel
+START=286845
+END=346615
+title=Why independent clutter cancels
 [CHAPTER]
 TIMEBASE=1/1000
-START=348770
-END=420000
-title=A useful encoder still needs an audit
+START=346615
+END=411307
+title=Test invariance without losing dynamics

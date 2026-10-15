@@ -1,0 +1,48 @@
+{
+  "episodes": [
+    {
+      "episode": "diayn",
+      "poses": 36,
+      "animation_phases_checked": 3,
+      "max_visible_words": 24,
+      "mean_visible_words": 12.6
+    },
+    {
+      "episode": "geometry",
+      "poses": 36,
+      "animation_phases_checked": 3,
+      "max_visible_words": 21,
+      "mean_visible_words": 10.8
+    },
+    {
+      "episode": "scaling",
+      "poses": 36,
+      "animation_phases_checked": 3,
+      "max_visible_words": 16,
+      "mean_visible_words": 10.8
+    },
+    {
+      "episode": "representation",
+      "poses": 36,
+      "animation_phases_checked": 3,
+      "max_visible_words": 18,
+      "mean_visible_words": 10.1
+    },
+    {
+      "episode": "assistance",
+      "poses": 36,
+      "animation_phases_checked": 3,
+      "max_visible_words": 30,
+      "mean_visible_words": 11.7
+    },
+    {
+      "episode": "language",
+      "poses": 36,
+      "animation_phases_checked": 3,
+      "max_visible_words": 27,
+      "mean_visible_words": 14.5
+    }
+  ],
+  "failures": [],
+  "caption_mode": "selectable, off by default"
+}
