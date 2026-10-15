@@ -88,7 +88,7 @@ if __name__=='__main__':
     bib=''
     for p in PAPERS:
         bib+=('@misc{'+p['id']+',\n  title = {'+p['title']+'},\n  author = {'+' and '.join(p['authors'].split('; '))+'},\n  year = {'+str(p['year'])+'},\n  note = {'+p['venue']+'},\n  url = {'+p['url']+'}\n}\n\n')
-    (ROOT/'literature/references.bib').write_text(bib)
+    (ROOT/'literature/references.bib').write_text(bib.rstrip()+'\n')
     template=(ROOT/'src/literature.template.html').read_text()
     cards=''
     labels={'dynamics':'Learnable dynamics','information':'Information-seeking','skills':'Build and compose skills','curriculum':'Choose practice','transfer':'Transfer and limits'}
