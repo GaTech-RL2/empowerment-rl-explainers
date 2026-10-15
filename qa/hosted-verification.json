@@ -1,37 +1,56 @@
 {
-  "base_url": "https://gatech-rl2.github.io/empowerment-rl-explainers/",
+  "url": "https://gatech-rl2.github.io/empowerment-rl-explainers/",
+  "revision": "e02ff48",
+  "checked_at": "2026-10-15T21:49:19.019455+00:00",
+  "html_edition": 2,
   "videos": [
     {
       "id": "diayn",
       "status": 206,
-      "content_range": "bytes 0-1023/10428983"
+      "content_range": "bytes 0-31/8992808",
+      "bytes": 8992808,
+      "duration": 377.60758,
+      "edition": 2
     },
     {
       "id": "geometry",
       "status": 206,
-      "content_range": "bytes 0-1023/10920346"
+      "content_range": "bytes 0-31/8191684",
+      "bytes": 8191684,
+      "duration": 396.66079,
+      "edition": 2
     },
     {
       "id": "scaling",
       "status": 206,
-      "content_range": "bytes 0-1023/10802581"
+      "content_range": "bytes 0-31/8086456",
+      "bytes": 8086456,
+      "duration": 401.53621,
+      "edition": 2
     },
     {
       "id": "representation",
       "status": 206,
-      "content_range": "bytes 0-1023/11025256"
+      "content_range": "bytes 0-31/8449928",
+      "bytes": 8449928,
+      "duration": 411.30679,
+      "edition": 2
     },
     {
       "id": "assistance",
       "status": 206,
-      "content_range": "bytes 0-1023/10611623"
+      "content_range": "bytes 0-31/8749596",
+      "bytes": 8749596,
+      "duration": 409.14225,
+      "edition": 2
     },
     {
       "id": "language",
       "status": 206,
-      "content_range": "bytes 0-1023/10871231"
+      "content_range": "bytes 0-31/8310302",
+      "bytes": 8310302,
+      "duration": 417.68238,
+      "edition": 2
     }
-  ],
-  "literature_http": 200,
-  "bibliography_entries": 19
+  ]
 }
