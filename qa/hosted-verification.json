@@ -1,0 +1,37 @@
+{
+  "base_url": "https://gatech-rl2.github.io/empowerment-rl-explainers/",
+  "videos": [
+    {
+      "id": "diayn",
+      "status": 206,
+      "content_range": "bytes 0-1023/10428983"
+    },
+    {
+      "id": "geometry",
+      "status": 206,
+      "content_range": "bytes 0-1023/10920346"
+    },
+    {
+      "id": "scaling",
+      "status": 206,
+      "content_range": "bytes 0-1023/10802581"
+    },
+    {
+      "id": "representation",
+      "status": 206,
+      "content_range": "bytes 0-1023/11025256"
+    },
+    {
+      "id": "assistance",
+      "status": 206,
+      "content_range": "bytes 0-1023/10611623"
+    },
+    {
+      "id": "language",
+      "status": 206,
+      "content_range": "bytes 0-1023/10871231"
+    }
+  ],
+  "literature_http": 200,
+  "bibliography_entries": 19
+}
