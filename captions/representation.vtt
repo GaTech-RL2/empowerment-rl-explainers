@@ -1,0 +1,229 @@
+WEBVTT
+
+00:00:00.453 --> 00:00:05.817
+A camera sees a robot, moving shadows, a door, and a changing display.
+
+00:00:05.931 --> 00:00:09.341
+Which features should a control representation retain?
+
+00:00:09.454 --> 00:00:11.623
+Keeping every pixel is expensive.
+
+00:00:11.736 --> 00:00:20.413
+Discarding every uncontrollable variable is also wrong: the robot may not control the wind, but wind can determine which actions move it
+
+00:00:20.526 --> 00:00:21.552
+toward a target.
+
+00:00:21.835 --> 00:00:24.090
+Use three conceptual components.
+
+00:00:24.203 --> 00:00:27.245
+One changes in response to the agent's actions.
+
+00:00:27.358 --> 00:00:32.117
+A second evolves on its own but influences the first component's dynamics.
+
+00:00:32.230 --> 00:00:35.832
+A third evolves independently and has no effect on control.
+
+00:00:35.945 --> 00:00:39.853
+The displayed factorization makes those distinctions precise.
+
+00:00:39.966 --> 00:00:46.094
+It is a model assumption about dynamics, not a label we can assign from visual appearance alone.
+
+00:00:46.377 --> 00:00:52.973
+Learning to Perceive the World Through Control studies representations induced by empowerment-based skill learning.
+
+00:00:53.087 --> 00:01:00.806
+Its key question is whether those representations can ignore control-irrelevant variation while retaining the features needed to
+
+00:01:00.919 --> 00:01:03.018
+distinguish what the agent can do.
+
+00:01:03.131 --> 00:01:09.614
+Our wind-and-display example makes the relevant distinction before we examine the mathematical assumptions.
+
+00:01:10.917 --> 00:01:16.313
+Start with the skill decoder from earlier lessons, but factor it through two encoders.
+
+00:01:16.427 --> 00:01:20.889
+One represents the initial state and the other represents the future state.
+
+00:01:21.002 --> 00:01:25.962
+Together they retain the information needed to infer which skill produced the outcome.
+
+00:01:26.076 --> 00:01:29.336
+These are called forward and backward representations.
+
+00:01:29.620 --> 00:01:32.006
+Bayes rule makes their target explicit.
+
+00:01:32.119 --> 00:01:39.426
+Multiply the skill prior by the probability that the skill reaches the observed outcome, then normalize across skills.
+
+00:01:39.539 --> 00:01:45.601
+A feature matters to this posterior only if it changes the relative evidence for skill identities.
+
+00:01:45.714 --> 00:01:51.172
+This creates a representation-learning signal without supplying a downstream task label.
+
+00:01:51.455 --> 00:01:53.651
+There is a crucial qualification.
+
+00:01:53.764 --> 00:02:00.891
+A sufficiently large network could predict the correct posterior while also storing arbitrary irrelevant details.
+
+00:02:01.004 --> 00:02:09.543
+The theory therefore studies minimal sufficient representations: representations that preserve exactly the distinctions needed by the
+
+00:02:09.657 --> 00:02:10.482
+posterior.
+
+00:02:10.596 --> 00:02:18.803
+Correct prediction alone is not the same as compression, and a practical neural network is not guaranteed to satisfy minimality.
+
+00:02:20.106 --> 00:02:26.160
+Think of the forward representation as describing the control possibilities available from a state.
+
+00:02:26.273 --> 00:02:31.417
+Two versions of a machine might use different button names while offering the same effects.
+
+00:02:31.531 --> 00:02:39.671
+If actions can be matched by their transition distributions, the superficial interface labels should not define different underlying
+
+00:02:39.784 --> 00:02:40.835
+capabilities.
+
+00:02:41.118 --> 00:02:48.403
+In our diagram, one panel maps the upper button to opening a gate, while another swaps the physical labels.
+
+00:02:48.516 --> 00:02:52.437
+The useful comparison pairs actions by their consequences.
+
+00:02:52.551 --> 00:03:00.809
+A controller still needs to issue the correct button in each interface, but a representation of the available control structure can
+
+00:03:00.923 --> 00:03:04.115
+identify the equivalent starting situations.
+
+00:03:04.399 --> 00:03:10.267
+The paper formalizes such equivalences under its policy and representation assumptions.
+
+00:03:10.380 --> 00:03:14.959
+The point is not that two states with similar pictures must have the same embedding.
+
+00:03:15.073 --> 00:03:21.463
+It is that a specific relation between their available transition distributions can justify aliasing.
+
+00:03:21.576 --> 00:03:27.876
+Changing a real obstacle, an actuator limit, or the effect of an action may break that relation.
+
+00:03:29.179 --> 00:03:36.837
+The backward representation answers a different question: what does observing this outcome tell us about the skill that brought us here?
+
+00:03:36.950 --> 00:03:42.611
+Suppose two outcomes occur in the same proportion under every skill from a given starting state.
+
+00:03:42.724 --> 00:03:49.800
+Their likelihoods differ by a shared factor, so that factor cancels when computing the posterior over skills.
+
+00:03:50.084 --> 00:03:58.197
+Under the corresponding conditions across starting states, a minimal backward representation can identify these outcomes.
+
+00:03:58.310 --> 00:04:01.512
+Yet their future control possibilities might differ.
+
+00:04:01.625 --> 00:04:08.607
+Arriving at two locations by indistinguishable routes does not imply that the same exits will be available afterward.
+
+00:04:08.721 --> 00:04:12.612
+Incoming evidence and outgoing control are separate structures.
+
+00:04:12.895 --> 00:04:18.327
+This is why forcing the two encoders to be identical can discard useful distinctions.
+
+00:04:18.440 --> 00:04:26.317
+In the companion, compare small tables of skill-conditioned probabilities and directly compute the posterior for each outcome.
+
+00:04:26.431 --> 00:04:34.053
+You can see when columns carry the same evidence even though we assign the resulting states different future options in the toy model.
+
+00:04:35.356 --> 00:04:39.148
+We can see the core cancellation in a simple probability model.
+
+00:04:39.261 --> 00:04:43.976
+Let the outcome contain a controllable coordinate and an independent nuisance.
+
+00:04:44.090 --> 00:04:52.191
+If the nuisance has the same distribution for every skill, its probability appears in both the numerator and denominator of Bayes rule.
+
+00:04:52.304 --> 00:04:56.392
+It cancels, leaving the same posterior without the nuisance.
+
+00:04:56.675 --> 00:05:02.278
+That calculation explains why nuisance variation need not help skill classification.
+
+00:05:02.391 --> 00:05:06.269
+It does not prove that any finite-data neural network will ignore it.
+
+00:05:06.382 --> 00:05:15.430
+A network might memorize correlations, a policy might condition unnecessarily on the nuisance, or a restricted skill set might fail to
+
+00:05:15.544 --> 00:05:18.434
+expose important controllable distinctions.
+
+00:05:18.717 --> 00:05:28.256
+The paper's invariance result adds explicit conditions, including its structured dynamics, optimal-posterior analysis, and minimality
+
+00:05:28.370 --> 00:05:31.445
+assumptions for policies and representations.
+
+00:05:31.558 --> 00:05:32.964
+Those conditions matter.
+
+00:05:33.077 --> 00:05:41.507
+In our lab, independent duplicate observation channels leave information unchanged, while action-dependent changes can alter it.
+
+00:05:41.620 --> 00:05:47.920
+This isolates one algebraic mechanism without presenting the toy calculation as the full theorem.
+
+00:05:49.223 --> 00:05:54.509
+A good representation experiment needs both invariance and sensitivity tests.
+
+00:05:54.622 --> 00:06:01.994
+Vary an irrelevant display while holding the control problem fixed: the representation should ideally stay stable.
+
+00:06:02.108 --> 00:06:10.342
+Then change a door's availability or an actuator's effect: the representation should preserve the distinction if it changes the relevant
+
+00:06:10.455 --> 00:06:11.669
+skill posterior.
+
+00:06:11.952 --> 00:06:14.863
+Also test the policy and decoder together.
+
+00:06:14.976 --> 00:06:23.155
+An encoder that ignores an important variable can still look compact, and a highly accurate classifier can still store irrelevant
+
+00:06:23.269 --> 00:06:24.160
+information.
+
+00:06:24.273 --> 00:06:30.535
+Compression, predictive sufficiency, and downstream control are related but different properties.
+
+00:06:30.649 --> 00:06:35.477
+Treating any one metric as a complete answer hides the assumptions behind the theory.
+
+00:06:35.761 --> 00:06:42.629
+The lesson is that empowerment-based interaction offers a principled route toward control-centered representations.
+
+00:06:42.742 --> 00:06:48.896
+It does not remove the need to specify what counts as relevant control or to verify the learned model.
+
+00:06:49.009 --> 00:06:57.752
+Next we will change the subject of empowerment: instead of expanding the robot's own choices, we will ask the robot to expand a human's
+
+00:06:57.865 --> 00:06:59.150
+effective control.

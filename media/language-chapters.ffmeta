@@ -1,0 +1,31 @@
+;FFMETADATA1
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=67416
+title=The next token may be the real decision
+[CHAPTER]
+TIMEBASE=1/1000
+START=67416
+END=130318
+title=Mutual information is bounded by action entropy
+[CHAPTER]
+TIMEBASE=1/1000
+START=130318
+END=200771
+title=Surprisal is a sample, not an entropy oracle
+[CHAPTER]
+TIMEBASE=1/1000
+START=200771
+END=268422
+title=Stop when cumulative surprise exceeds a budget
+[CHAPTER]
+TIMEBASE=1/1000
+START=268422
+END=343730
+title=Construct targets, then fine-tune
+[CHAPTER]
+TIMEBASE=1/1000
+START=343730
+END=420000
+title=Evaluate assistance beyond completion length

@@ -1,0 +1,53 @@
+Training LLM Agents to Empower Humans
+Evan Ellis, Vivek Myers, Jens Tuyls, Sergey Levine, Anca Dragan, Benjamin Eysenbach
+https://arxiv.org/abs/2510.13709
+Original educational narration. Toy examples are not benchmark replications.
+
+00:00:00.000 — The next token may be the real decision
+A coding assistant can fill in punctuation, repeat a familiar loop pattern, or choose the algorithm that defines the whole program. These actions have very different implications for the human's control. Completing more text is not automatically better assistance if it passes through a decision the human intended to make.
+
+Training LLM Agents to Empower Humans studies this problem with the document as a state. The assistant proposes text; the human can accept, reject, or finish, and can add their own text. Effective empowerment measures how the human's next contribution influences the future document, rather than measuring how much control the assistant accumulates.
+
+The practical method uses offline text to construct training examples that complete predictable continuations. The ambition is to help the human reach a consequential choice more quickly. Our animations use an invented token sequence so that you can inspect every probability. They do not claim to reproduce an actual model's tokenization or its confidence on real code.
+Source / scope: Language paper §§3–4. Invented token sequence is a teaching model; author claims are distinguished from our visualization.
+
+00:01:07.416 — Mutual information is bounded by action entropy
+The information objective still looks hard to compute over all possible future documents. Start with a standard identity: mutual information equals the human action entropy minus the uncertainty about that action after the future is observed. The second term cannot be negative, so action entropy is an upper bound.
+
+This gives a one-way implication. If the human's next action is almost certain, it cannot transmit much information through this channel. But high uncertainty does not prove high empowerment. A person could make many random edits that are later overwritten, leaving the final document independent of the choice.
+
+That asymmetry is essential to reading the paper. The method uses low estimated entropy as a signal for text that may be uninteresting for the human to supply. It does not exactly calculate the mutual information of every proposed completion. Our lab therefore displays a surprisal threshold and a completion length, rather than mislabeling either as measured human empowerment.
+Source / scope: Language §4.3 entropy upper bound. Random-edit counterexample is original; high entropy alone is not a lower bound on empowerment.
+
+00:02:10.318 — Surprisal is a sample, not an entropy oracle
+Entropy is an expectation over possible human actions. We do not know the complete human policy, so the method uses a pretrained language model as a likelihood proxy. For one observed continuation, negative log model probability is a surprisal sample. It is not the entropy of the whole action distribution.
+
+If samples truly came from the human policy and the predictor matched that policy, averaging their surprisals would recover the entropy. With a mismatched predictor, the average instead equals cross-entropy: human entropy plus a Kullback Leibler mismatch term. A surprised model might therefore be seeing an unusual but obvious human action, rather than an important decision.
+
+This does not make the heuristic useless. It identifies an assumption to test. Calibration, domain shift, tokenization, and which corpus supplies the samples can all affect the threshold. In the lab, changing a candidate token's assigned probability moves the stopping point without changing any underlying human capability. That illustrates why the score should remain labeled as a model-based proxy.
+Source / scope: Language §4.3 model-likelihood approximation; cross-entropy decomposition is a standard identity, explained with original examples.
+
+00:03:20.771 — Stop when cumulative surprise exceeds a budget
+A completion's probability factors into conditional token probabilities. Taking a negative logarithm converts their product into a sum. Each additional token adds a nonnegative surprisal cost, so the cumulative curve can only rise. The method chooses the longest continuation whose total cost stays below a selected threshold.
+
+Suppose four predictable tokens have cumulative surprisal point two nats. The next token alone adds one point four nats. With a threshold of one nat, the assistant's training target ends before that token. Raising the threshold can admit it and perhaps more tokens afterward. The stopping rule depends on the sum, not just the least likely individual token.
+
+All logarithms here are natural. Therefore a surprisal threshold of eta corresponds to a sequence-probability threshold of exponential minus eta. If you choose base-two logs instead, the corresponding expression uses two to the minus eta. The numerical lab handles the empty-prefix case explicitly when even the first token crosses the threshold.
+Source / scope: Language §4.2 and Algorithm 1, with an explicit zero-length case. Numerical token example and log-base clarification are original.
+
+00:04:28.422 — Construct targets, then fine-tune
+The implementation is surprisingly concrete. Sample a program and choose a prefix. Score the remaining suffix with the likelihood model. Walk forward until cumulative surprisal crosses the threshold, then use the preceding continuation as the assistant's training target. This turns an information-theoretic motivation into a data-selection procedure.
+
+Fine-tune the assistant to produce these selected continuations. The practical algorithm does not need to enumerate future documents or run an exact mutual-information reinforcement learning loop during target construction. That distinction is important in a course on empowerment-based reinforcement learning: the theoretical objective can inspire a supervised training recipe rather than appearing literally as a policy-gradient reward.
+
+The included code implements the stopping calculation on explicit probabilities. It is a transparent reference for the arithmetic, not a complete language-model training system. To build the full method, you would additionally need a tokenizer, a likelihood model, a dataset, training configuration, and an evaluation protocol that measures the human's experience with the resulting assistant.
+Source / scope: Language §4.2 offline target construction and fine-tuning. Code is an original threshold reference, not a reproduction of full LLM training.
+
+00:05:43.730 — Evaluate assistance beyond completion length
+The authors report an eighteen-person study in which participants preferred their empowerment-trained assistant seventy-eight percent of the time, alongside evaluations with simulated coding users. These findings support the method in the studied settings. They do not establish that shorter completions, or any fixed surprisal threshold, will be best for every user and task.
+
+For a new deployment, evaluate preference, acceptance, task outcomes, and whether the assistant leaves the intended decisions to the human. Inspect failures where model uncertainty reflects unfamiliar vocabulary rather than a genuine choice. Also compare against well-tuned completion-length baselines, because the goal is better assistance, not merely changing the number of generated tokens.
+
+Across the series, the same information-theoretic lens appears in several roles. DIAYN learns recognizable skills. Geometry and SEE ask where many skills remain possible. Representation learning asks which features matter for control. Assistance changes whose influence is optimized. The definitions, assumptions, and measurement channel determine what each objective actually promises.
+Source / scope: Language empirical results and project page; interpretation is limited to the reported study. Final synthesis is original.
+

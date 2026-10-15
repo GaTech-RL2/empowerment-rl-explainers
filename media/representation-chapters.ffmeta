@@ -1,0 +1,31 @@
+;FFMETADATA1
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=70463
+title=More pixels do not mean more control
+[CHAPTER]
+TIMEBASE=1/1000
+START=70463
+END=139653
+title=The decoder is also a representation model
+[CHAPTER]
+TIMEBASE=1/1000
+START=139653
+END=208726
+title=Forward asks: what can happen next?
+[CHAPTER]
+TIMEBASE=1/1000
+START=208726
+END=274903
+title=Backward asks: how could I get here?
+[CHAPTER]
+TIMEBASE=1/1000
+START=274903
+END=348770
+title=Why independent noise can cancel
+[CHAPTER]
+TIMEBASE=1/1000
+START=348770
+END=420000
+title=A useful encoder still needs an audit

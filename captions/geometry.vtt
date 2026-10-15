@@ -1,0 +1,235 @@
+WEBVTT
+
+00:00:00.458 --> 00:00:03.250
+Consider a junction with three one-way exits.
+
+00:00:03.364 --> 00:00:11.233
+Choosing different skills can reliably take you down different exits, so the junction supports several distinguishable futures.
+
+00:00:11.348 --> 00:00:15.275
+But after taking an exit, you may lose access to the others.
+
+00:00:15.389 --> 00:00:20.584
+Exercising a choice and preserving the opportunity to choose are different behaviors.
+
+00:00:20.870 --> 00:00:28.192
+Effective empowerment describes the information realized by a specified set of skills and its sampling distribution.
+
+00:00:28.306 --> 00:00:33.478
+Potential empowerment optimizes that information over the available behaviors.
+
+00:00:33.593 --> 00:00:37.764
+A further policy can seek states with high potential empowerment.
+
+00:00:37.878 --> 00:00:45.369
+Notice the two levels: one optimization measures a state's options, while another moves through the world to obtain them.
+
+00:00:45.655 --> 00:00:51.626
+The Geometry of Empowerment studies this distinction through reachable future-state distributions.
+
+00:00:51.740 --> 00:00:58.282
+The paper's policies are closed-loop skills and its future state is sampled at a discounted random time.
+
+00:00:58.397 --> 00:01:05.546
+Our junction example initially uses a finite endpoint channel to make the information calculation transparent.
+
+00:01:05.660 --> 00:01:08.787
+We will state when we switch between these two settings.
+
+00:01:10.104 --> 00:01:12.321
+A trajectory is long and detailed.
+
+00:01:12.435 --> 00:01:18.194
+For this analysis, compress it into a probability distribution over future states.
+
+00:01:18.309 --> 00:01:25.867
+Discounted occupancy assigns weight one minus gamma to the next state, then multiplies subsequent weights by gamma.
+
+00:01:25.982 --> 00:01:32.470
+The weights sum to one, so the result is a genuine distribution rather than an unnormalized visit count.
+
+00:01:32.757 --> 00:01:38.357
+With three possible outcomes, draw each distribution as a point inside a triangle.
+
+00:01:38.471 --> 00:01:41.326
+A corner means certainty about one outcome.
+
+00:01:41.441 --> 00:01:43.577
+An interior point means a mixture.
+
+00:01:43.692 --> 00:01:46.509
+This triangle is a probability simplex.
+
+00:01:46.623 --> 00:01:54.195
+Distances inside it will describe differences in outcome probabilities, not the physical distances that a robot travels.
+
+00:01:54.481 --> 00:01:56.181
+Each skill gives one point.
+
+00:01:56.295 --> 00:02:01.010
+Randomly choose among the skills and their distributions average into another point.
+
+00:02:01.125 --> 00:02:04.374
+Varying the mixture weights traces their convex hull.
+
+00:02:04.488 --> 00:02:13.301
+This is why geometric language becomes useful: an apparently complicated policy problem can sometimes be examined through a set of
+
+00:02:13.415 --> 00:02:17.333
+reachable distributions and the center induced by a skill mixture.
+
+00:02:18.650 --> 00:02:23.997
+Why does this picture involve information rather than an arbitrary geometric distance?
+
+00:02:24.111 --> 00:02:28.979
+For each skill, compare its outcome distribution with the mixture over skills.
+
+00:02:29.094 --> 00:02:35.343
+The Kullback Leibler divergence measures how much that skill-specific distribution differs from the mixture.
+
+00:02:35.458 --> 00:02:41.955
+Average these divergences using the skill prior, and the expression is exactly mutual information.
+
+00:02:42.242 --> 00:02:43.875
+That average is important.
+
+00:02:43.990 --> 00:02:49.735
+For an arbitrary prior, mutual information is not equal to the largest divergence.
+
+00:02:49.850 --> 00:02:58.954
+If we optimize the prior for a fixed finite channel, a dual description becomes available: find a reference distribution that minimizes
+
+00:02:59.068 --> 00:03:01.794
+the largest divergence from the channel's rows.
+
+00:03:01.909 --> 00:03:03.875
+This is an information radius.
+
+00:03:04.161 --> 00:03:12.786
+At a capacity-achieving solution, active input symbols touch the relevant outer boundary; unused symbols cannot improve the optimum.
+
+00:03:12.900 --> 00:03:18.693
+Our lab solves the finite-channel optimization numerically and checks its upper and lower bounds.
+
+00:03:18.807 --> 00:03:27.158
+The picture supplies intuition for the paper's broader occupancy geometry, while avoiding the mistaken claim that every triangle's
+
+00:03:27.272 --> 00:03:29.670
+Euclidean area equals empowerment.
+
+00:03:30.987 --> 00:03:32.844
+Here are three sanity checks.
+
+00:03:32.958 --> 00:03:39.927
+First, if every input deterministically selects one of three distinct outputs, capacity is log three.
+
+00:03:40.041 --> 00:03:45.795
+Add ten new input labels that duplicate existing outputs and capacity does not increase.
+
+00:03:45.909 --> 00:03:50.873
+Labels are cheap; distinguishable consequences are what carry information.
+
+00:03:51.159 --> 00:03:55.896
+Second, suppose two buttons are confused with probability epsilon.
+
+00:03:56.010 --> 00:04:00.943
+The binary symmetric channel has capacity log two minus binary entropy.
+
+00:04:01.058 --> 00:04:03.793
+At zero noise, control is reliable.
+
+00:04:03.908 --> 00:04:09.182
+At one-half noise, the output is independent of the input and capacity vanishes.
+
+00:04:09.297 --> 00:04:16.991
+A perfectly predictable inversion would still transmit information, so randomness and inversion must not be confused.
+
+00:04:17.277 --> 00:04:23.862
+Third, imagine a machine that samples uniformly from a thousand outcomes regardless of the chosen button.
+
+00:04:23.976 --> 00:04:29.424
+Its future-state entropy is large, yet its empowerment through those buttons is zero.
+
+00:04:29.538 --> 00:04:36.051
+These examples explain why counting visited states or measuring visual diversity alone is insufficient.
+
+00:04:36.166 --> 00:04:41.524
+The causal dependence on the selected behavior is essential to this channel calculation.
+
+00:04:42.841 --> 00:04:44.724
+Now give each state a reward.
+
+00:04:44.838 --> 00:04:49.014
+The value of an occupancy is its dot product with the reward vector.
+
+00:04:49.128 --> 00:04:52.915
+That introduces a task-specific direction in the simplex.
+
+00:04:53.030 --> 00:05:01.709
+Information geometry asks whether outcomes are distinguishable; reward geometry asks whether those distinctions improve the particular
+
+00:05:01.823 --> 00:05:03.376
+quantity we care about.
+
+00:05:03.662 --> 00:05:12.673
+In our toy example, a control can reliably set many tiny values of an indicator light, while another control opens a useful door.
+
+00:05:12.788 --> 00:05:17.083
+The light may offer many distinguishable outcomes and little task value.
+
+00:05:17.197 --> 00:05:21.036
+Increasing measurement precision can amplify this mismatch.
+
+00:05:21.150 --> 00:05:27.861
+Information is sensitive to distinguishability, even when every change is irrelevant to the selected task.
+
+00:05:28.147 --> 00:05:36.790
+The paper proves a positive adaptation connection under a specified tabular reward distribution, and also gives limitations for
+
+00:05:36.905 --> 00:05:39.909
+continuous states and uneven reward priors.
+
+00:05:40.024 --> 00:05:43.188
+Treat these as conditional mathematical statements.
+
+00:05:43.303 --> 00:05:52.209
+They do not imply that any high-empowerment policy will solve any future task, or that all controllable variables are equally useful to
+
+00:05:52.323 --> 00:05:53.222
+represent.
+
+00:05:54.539 --> 00:05:58.767
+To turn this theory into an experiment, write down the channel first.
+
+00:05:58.882 --> 00:06:05.439
+Specify the starting state, the skill family, the future-state observation, and the horizon.
+
+00:06:05.553 --> 00:06:09.088
+Changing any one of these changes what counts as control.
+
+00:06:09.202 --> 00:06:14.082
+Two empowerment curves are not directly comparable if they measure different channels.
+
+00:06:14.368 --> 00:06:18.325
+Next, separate an estimator from the ideal capacity.
+
+00:06:18.439 --> 00:06:24.166
+A learned decoder may provide a lower bound on the information realized by a limited skill set.
+
+00:06:24.280 --> 00:06:30.235
+That information is itself no larger than the best capacity available in the full policy class.
+
+00:06:30.350 --> 00:06:36.475
+Approximation error, incomplete skills, and optimization error create distinct gaps.
+
+00:06:36.761 --> 00:06:42.520
+Finally, imagine rewarding another policy for reaching states where this estimate is high.
+
+00:06:42.635 --> 00:06:46.387
+We have arrived at the outer optimization promised at the beginning.
+
+00:06:46.501 --> 00:06:51.115
+The geometry identifies what to measure and warns about reward mismatch.
+
+00:06:51.230 --> 00:06:59.141
+The next paper develops a practical two-policy recipe that uses skill learning to estimate empowerment while learning where to go.

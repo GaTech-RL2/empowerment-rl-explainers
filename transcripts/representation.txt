@@ -1,0 +1,53 @@
+Learning to Perceive the World Through Control: Empowerment-Based Representation Learning
+Mahsa Bastankhah, Sophie Broderick, Benjamin Eysenbach
+https://arxiv.org/abs/2605.30656
+Original educational narration. Toy examples are not benchmark replications.
+
+00:00:00.000 — More pixels do not mean more control
+A camera sees a robot, moving shadows, a door, and a changing display. Which features should a control representation retain? Keeping every pixel is expensive. Discarding every uncontrollable variable is also wrong: the robot may not control the wind, but wind can determine which actions move it toward a target.
+
+Use three conceptual components. One changes in response to the agent's actions. A second evolves on its own but influences the first component's dynamics. A third evolves independently and has no effect on control. The displayed factorization makes those distinctions precise. It is a model assumption about dynamics, not a label we can assign from visual appearance alone.
+
+Learning to Perceive the World Through Control studies representations induced by empowerment-based skill learning. Its key question is whether those representations can ignore control-irrelevant variation while retaining the features needed to distinguish what the agent can do. Our wind-and-display example makes the relevant distinction before we examine the mathematical assumptions.
+Source / scope: Representation paper §5.2, Definition 5.3. Robot, wind, and display illustration is original.
+
+00:01:10.463 — The decoder is also a representation model
+Start with the skill decoder from earlier lessons, but factor it through two encoders. One represents the initial state and the other represents the future state. Together they retain the information needed to infer which skill produced the outcome. These are called forward and backward representations.
+
+Bayes rule makes their target explicit. Multiply the skill prior by the probability that the skill reaches the observed outcome, then normalize across skills. A feature matters to this posterior only if it changes the relative evidence for skill identities. This creates a representation-learning signal without supplying a downstream task label.
+
+There is a crucial qualification. A sufficiently large network could predict the correct posterior while also storing arbitrary irrelevant details. The theory therefore studies minimal sufficient representations: representations that preserve exactly the distinctions needed by the posterior. Correct prediction alone is not the same as compression, and a practical neural network is not guaranteed to satisfy minimality.
+Source / scope: Representation paper §4 and Definition 4.1: Bayes-optimal decoder, sufficiency, and minimality assumptions.
+
+00:02:19.653 — Forward asks: what can happen next?
+Think of the forward representation as describing the control possibilities available from a state. Two versions of a machine might use different button names while offering the same effects. If actions can be matched by their transition distributions, the superficial interface labels should not define different underlying capabilities.
+
+In our diagram, one panel maps the upper button to opening a gate, while another swaps the physical labels. The useful comparison pairs actions by their consequences. A controller still needs to issue the correct button in each interface, but a representation of the available control structure can identify the equivalent starting situations.
+
+The paper formalizes such equivalences under its policy and representation assumptions. The point is not that two states with similar pictures must have the same embedding. It is that a specific relation between their available transition distributions can justify aliasing. Changing a real obstacle, an actuator limit, or the effect of an action may break that relation.
+Source / scope: Representation paper Theorem 5.1 under its stated conditions. Gate/button illustration is original and does not claim a universal encoder guarantee.
+
+00:03:28.726 — Backward asks: how could I get here?
+The backward representation answers a different question: what does observing this outcome tell us about the skill that brought us here? Suppose two outcomes occur in the same proportion under every skill from a given starting state. Their likelihoods differ by a shared factor, so that factor cancels when computing the posterior over skills.
+
+Under the corresponding conditions across starting states, a minimal backward representation can identify these outcomes. Yet their future control possibilities might differ. Arriving at two locations by indistinguishable routes does not imply that the same exits will be available afterward. Incoming evidence and outgoing control are separate structures.
+
+This is why forcing the two encoders to be identical can discard useful distinctions. In the companion, compare small tables of skill-conditioned probabilities and directly compute the posterior for each outcome. You can see when columns carry the same evidence even though we assign the resulting states different future options in the toy model.
+Source / scope: Representation paper Proposition 5.2. Table-based Bayes calculation is an original illustration of backward aliasing.
+
+00:04:34.903 — Why independent noise can cancel
+We can see the core cancellation in a simple probability model. Let the outcome contain a controllable coordinate and an independent nuisance. If the nuisance has the same distribution for every skill, its probability appears in both the numerator and denominator of Bayes rule. It cancels, leaving the same posterior without the nuisance.
+
+That calculation explains why nuisance variation need not help skill classification. It does not prove that any finite-data neural network will ignore it. A network might memorize correlations, a policy might condition unnecessarily on the nuisance, or a restricted skill set might fail to expose important controllable distinctions.
+
+The paper's invariance result adds explicit conditions, including its structured dynamics, optimal-posterior analysis, and minimality assumptions for policies and representations. Those conditions matter. In our lab, independent duplicate observation channels leave information unchanged, while action-dependent changes can alter it. This isolates one algebraic mechanism without presenting the toy calculation as the full theorem.
+Source / scope: Representation paper Theorem 5.6 and associated assumptions. Product-channel cancellation is a simplified original worked example.
+
+00:05:48.770 — A useful encoder still needs an audit
+A good representation experiment needs both invariance and sensitivity tests. Vary an irrelevant display while holding the control problem fixed: the representation should ideally stay stable. Then change a door's availability or an actuator's effect: the representation should preserve the distinction if it changes the relevant skill posterior.
+
+Also test the policy and decoder together. An encoder that ignores an important variable can still look compact, and a highly accurate classifier can still store irrelevant information. Compression, predictive sufficiency, and downstream control are related but different properties. Treating any one metric as a complete answer hides the assumptions behind the theory.
+
+The lesson is that empowerment-based interaction offers a principled route toward control-centered representations. It does not remove the need to specify what counts as relevant control or to verify the learned model. Next we will change the subject of empowerment: instead of expanding the robot's own choices, we will ask the robot to expand a human's effective control.
+Source / scope: Original evaluation guidance informed by Representation §§5–6. The guarantees remain conditional on the paper assumptions.
+

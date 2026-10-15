@@ -1,0 +1,31 @@
+;FFMETADATA1
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=63982
+title=Control is a communication channel
+[CHAPTER]
+TIMEBASE=1/1000
+START=63982
+END=134952
+title=Make a skill recognizable from its states
+[CHAPTER]
+TIMEBASE=1/1000
+START=134952
+END=202650
+title=Turn mutual information into a reward
+[CHAPTER]
+TIMEBASE=1/1000
+START=202650
+END=272524
+title=A numerical reward you can check
+[CHAPTER]
+TIMEBASE=1/1000
+START=272524
+END=349903
+title=Two optimizers, one feedback loop
+[CHAPTER]
+TIMEBASE=1/1000
+START=349903
+END=420000
+title=Diverse skills are only the beginning

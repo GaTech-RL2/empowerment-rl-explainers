@@ -1,0 +1,80 @@
+[
+  {
+    "id": "diayn",
+    "duration": 420.0,
+    "width": 1600,
+    "height": 900,
+    "fps": "20/1",
+    "chapters": 6,
+    "subtitles": 77,
+    "mean_audio_db": -15.6,
+    "peak_audio_db": -1.3,
+    "full_decode_passed": true,
+    "bytes": 10428983
+  },
+  {
+    "id": "geometry",
+    "duration": 420.0,
+    "width": 1600,
+    "height": 900,
+    "fps": "20/1",
+    "chapters": 6,
+    "subtitles": 78,
+    "mean_audio_db": -15.6,
+    "peak_audio_db": -1.0,
+    "full_decode_passed": true,
+    "bytes": 10920346
+  },
+  {
+    "id": "scaling",
+    "duration": 420.0,
+    "width": 1600,
+    "height": 900,
+    "fps": "20/1",
+    "chapters": 6,
+    "subtitles": 73,
+    "mean_audio_db": -15.6,
+    "peak_audio_db": -1.1,
+    "full_decode_passed": true,
+    "bytes": 10802581
+  },
+  {
+    "id": "representation",
+    "duration": 420.0,
+    "width": 1600,
+    "height": 900,
+    "fps": "20/1",
+    "chapters": 6,
+    "subtitles": 76,
+    "mean_audio_db": -15.6,
+    "peak_audio_db": -1.5,
+    "full_decode_passed": true,
+    "bytes": 11025256
+  },
+  {
+    "id": "assistance",
+    "duration": 420.0,
+    "width": 1600,
+    "height": 900,
+    "fps": "20/1",
+    "chapters": 6,
+    "subtitles": 79,
+    "mean_audio_db": -15.6,
+    "peak_audio_db": -1.5,
+    "full_decode_passed": true,
+    "bytes": 10611623
+  },
+  {
+    "id": "language",
+    "duration": 420.0,
+    "width": 1600,
+    "height": 900,
+    "fps": "20/1",
+    "chapters": 6,
+    "subtitles": 77,
+    "mean_audio_db": -15.6,
+    "peak_audio_db": -1.1,
+    "full_decode_passed": true,
+    "bytes": 10871231
+  }
+]

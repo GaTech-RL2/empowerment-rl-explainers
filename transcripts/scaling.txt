@@ -1,0 +1,53 @@
+Scaling Empowered Agents
+Catherine Ji, Vivek Myers, Joshua Lin, Alexandra Wingate, Sergey Levine, Benjamin Eysenbach
+https://arxiv.org/abs/2610.13002
+Original educational narration. Toy examples are not benchmark replications.
+
+00:00:00.000 — A workshop and a box of skills
+Imagine arriving at an empty workshop. You know how to cut, assemble, and repair things, but none of those skills works well without tools and materials. One behavior gathers resources and prepares the workspace. Other behaviors use those resources to produce different outcomes. Both are useful, but they optimize different immediate objectives.
+
+Skills Estimate Empowerment, abbreviated SEE, turns this distinction into a two-policy recipe. A skill policy probes the distinguishable futures available from a starting context. A separate potential-empowerment policy learns to visit states where the skill-based estimate is high. The same state may therefore be an endpoint for preparation and a starting point for skill execution.
+
+Our workshop is a teaching example, not a reported environment. It highlights the key architectural separation: the skill latent describes what to do, while the outer policy improves where skills can begin. Simply switching among diverse skills does not automatically implement that outer preparation objective.
+Source / scope: Scaling §4 two-policy SEE recipe. Workshop illustration is original; no benchmark reproduction is claimed.
+
+00:01:09.455 — Decode the skill from a future outcome
+The ideal decoder receives both the starting context and a future outcome, then predicts which skill was selected. A far-away outcome can mean different things depending on where the skill began. Conditioning on that starting context is therefore part of the mathematical channel, not an incidental implementation detail.
+
+As before, posterior evidence relative to the prior supplies a variational reward. A contrastive model can represent this evidence using logits. But logits are only defined relative to a normalization term. Subtract the log average exponential score over candidate skills to obtain a normalized density ratio for the chosen skill.
+
+This distinction matters when the estimate becomes another learner's reward. A score can grow through arbitrary offsets without representing additional control. The paper discusses practical classifier variants, including a joint classifier in continuous settings. Our derivation uses the ideal conditional form, and the lab uses exact finite distributions so every normalization can be checked directly.
+Source / scope: Scaling §4.1, practical classifier discussion in §4.2, and appendix A.1. Exact finite decoder is a teaching model.
+
+00:02:20.398 — A skill value becomes an empowerment estimate
+The future state in the theory is sampled at a geometric time. Equivalently, average the decoder reward along a rollout with discount weights and multiply by one minus gamma. A value function can estimate that normalized discounted return for each skill and starting context.
+
+Now average the skill values. In the ideal population calculation, this quantity lower-bounds the information realized by the current skill family. That realized information, in turn, cannot exceed the best available capacity. The first gap comes from the decoder; the second comes from skills that may not exploit every controllable outcome.
+
+In code, we also approximate the skill average with a finite sample and fit the value function from data. Those approximations are not guaranteed lower bounds on each individual estimate. Increasing the sample count reduces ordinary sampling variance under independence, but cannot fix a biased critic. The lab separates true capacity, realized information, and the estimated score.
+Source / scope: Scaling Eqs. 6–9; finite-sample and critic caveats follow from the distinction between population objectives and fitted estimates.
+
+00:03:28.160 — Collect data for both levels
+There is a data-collection problem hidden inside the equations. We cannot first solve every possible skill from every possible state in a large environment. We need a way to sample the contexts that matter while learning the skills that measure those contexts.
+
+SEE collects two-stage rollouts: run the potential policy, then sample a skill and execute it from the reached state. The outer trajectory proposes a promising starting context. The skill continuation probes its available control. Data from these interactions updates the representations, value estimates, and policies, producing a moving feedback loop.
+
+A useful debugging plot would show both phases separately. If preparation reaches the same state every time, ask whether its estimated advantage is real. If skills collapse to identical outcomes, a low empowerment estimate might reflect weak skills rather than a fundamentally powerless state. This is why recording only the outer reward curve can hide which component failed.
+Source / scope: Scaling §4.2 and algorithm appendix: two-stage data collection. Debugging plots and failure interpretation are original implementation guidance.
+
+00:04:34.590 — Choose the variables that count as control
+Suppose an agent can wiggle an irrelevant display with extremely fine precision. A sufficiently expressive decoder might distinguish many skill labels from tiny display changes. That could create a large information score without producing the resource gathering or object manipulation that motivated the experiment.
+
+The paper therefore treats the measurement channel as a design choice. Its practical implementation restricts which state variables enter empowerment estimation and adds a noise-based bottleneck in continuous settings. The policy can still receive the full observation needed for control. What the agent can see and what counts toward the empowerment objective need not be identical.
+
+The data-processing inequality gives a useful intuition: adding independent measurement noise cannot increase true mutual information. It can suppress fragile distinctions below a chosen resolution. That is an inductive bias, not a proof that all remaining behavior is useful. In the lab, compare meaningful outcome noise with a deliberately biased empowerment estimate and observe their different effects.
+Source / scope: Scaling §4.2 and appendix A.1: restricted outcome variables and Gaussian noising. Display example and lab are original.
+
+00:05:45.841 — What scaling does—and does not—establish
+The authors report emergent behaviors in their tested environments, including resource gathering and environment modification. These are empirical observations about a particular method, measurement channel, and training setup. They are not evidence that arbitrary agents will discover every useful behavior from an unrestricted information objective.
+
+For your own experiment, evaluate three things independently. First, inspect the states reached by the preparation policy. Second, execute different skills from those states and measure whether their effects remain distinguishable. Third, evaluate any downstream task you actually care about. A score produced by the same learned estimator used for training is not an independent validation.
+
+The central algorithmic idea is reusable: let skills estimate controllable futures, then learn to seek states where that estimate is large. Its reliability depends on representation choices, data coverage, and the quality of the estimator. The next lesson asks what the empowerment objective itself can tell us about which state features a representation should keep.
+Source / scope: Scaling experiments and discussion; audit checklist is original. This October 2026 work is presented as a preprint, not an established universal result.
+

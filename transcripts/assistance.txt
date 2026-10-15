@@ -1,0 +1,53 @@
+Learning to Assist Humans without Inferring Rewards
+Vivek Myers, Evan Ellis, Sergey Levine, Benjamin Eysenbach, Anca Dragan
+https://arxiv.org/abs/2411.02623
+Original educational narration. Toy examples are not benchmark replications.
+
+00:00:00.000 — Whose choices should the robot expand?
+A robot stands beside a person at a workbench. It could perform the entire task itself, or clear an obstruction so the person can choose what to build. Both might change the environment, but only one necessarily increases the person's control. Before writing an empowerment objective, identify whose action is the input to the channel.
+
+Learning to Assist Humans without Inferring Rewards places the human's current action on that input side. The assistant changes the environment and therefore changes how human actions influence future states. The objective is to learn an assistant that improves this influence over time, rather than explicitly reconstructing a hidden human reward function.
+
+This does not mean the method knows nothing about humans. It learns from their behavior and the resulting transitions. The distinction is between estimating a reward function and estimating the control consequences of human actions. Our toy workbench lets us vary those consequences directly, so we can inspect the objective before considering a learned estimator.
+Source / scope: Assistance §§3–4. Workbench is an original two-agent channel illustration.
+
+00:01:05.450 — Effective empowerment depends on human behavior
+Return to two reliable buttons, but now suppose a person almost always presses the left one. The machine still supports two distinct outcomes. Its channel capacity remains one bit. Yet the information realized under this person's biased action distribution is smaller, because there is less uncertainty about which button they will press.
+
+That is the difference between potential capacity and effective empowerment under a policy. At the extreme, if the person always chooses the same action, its entropy is zero, so its mutual information with any future is also zero. The selected action could still accomplish an important task; this metric measures a particular form of influence, not usefulness in every sense.
+
+The lab makes that dependence explicit. Vary the human's action preference while holding the transition channel fixed. Then remove an obstruction or increase assistant takeover. Capacity, realized information, and success on one chosen outcome need not move together. That disagreement is a diagnostic feature of the model, not a plotting error.
+Source / scope: Effective empowerment from Assistance §3; original exact channel calculation distinguishes fixed-policy MI from channel capacity.
+
+00:02:14.686 — Learn two views of the same future
+To estimate the objective in a complex environment, the paper learns two predictions of the same future. The controlled prediction sees the state, assistant action, and human action. The comparison prediction sees the state and assistant action but averages over the human action. Their difference asks what the human's action adds.
+
+Contrastive learning can estimate density ratios without explicitly modeling every future state. Positive pairs connect a context with a future reached from it; negative pairs provide a reference future distribution. A representation inner product scores their compatibility. The paper trains two symmetrized contrastive objectives, sharing a representation of the future state.
+
+At the ideal optimum, the scores correspond to log density ratios up to the constants described in the analysis. Those ideal conditions matter: arbitrary uncalibrated logits need not represent probabilities. In the exact lab calculation, we construct both ratios from known tables, giving us a reference against which to understand the learned approximation.
+Source / scope: Assistance §4.1, Eqs. 10–12. Log-ratio identities assume the stated optimum/normalization conditions; toy tables are exact.
+
+00:03:23.288 — Subtract the scores; the reference cancels
+Subtract the two ideal log-ratio scores. The reference future density appears in both and cancels. What remains is the log probability of the future with the human action known, divided by its probability when the human action is not known. This is exactly the pointwise evidence term inside conditional mutual information.
+
+Average that term under the appropriate joint distribution of human actions and resulting futures. The expectation becomes effective empowerment, up to the ideal-model constants. Notice the distinction between a sampled reward and its expectation: a single transition can have negative evidence even though mutual information itself is nonnegative.
+
+Empowerment via Successor Representations, or ESR, uses the representation-score difference as an intrinsic reward for training the assistant. It alternates data collection, representation learning, and reinforcement learning. In a real implementation, changing either policy changes the data distribution, so stale representations can produce misleading rewards. The exact channel model lets us isolate the cancellation before introducing those learning issues.
+Source / scope: Assistance §§4.2–4.3, score-difference reward and ESR. Joint-distribution and approximation caveats are stated explicitly.
+
+00:04:37.291 — Clear a path or take over the task?
+Consider three desired destinations behind an obstruction. Without help, several human actions lead to the same blocked state. Removing the obstruction can separate their outcome distributions, making the human's choices more consequential. The assistant has increased influence by changing the channel, without needing to know which destination will be preferred.
+
+Now imagine an assistant that always delivers the object to one predetermined destination, regardless of the person's action. It might score perfectly when that destination happens to be the evaluation target. But the output no longer carries information about the person's choice. In our simplified model, effective empowerment falls to zero.
+
+This example is deliberately narrow. Real assistance may include constraints, shared plans, safety requirements, and legitimate delegation. An information objective alone does not settle those questions. What it provides is a measurable distinction between changing the world and making another agent's choices effective. That distinction is often invisible if we report only one fixed task's completion rate.
+Source / scope: Original obstruction/takeover channel model, motivated by Assistance. It is not a reported experiment or a universal rule about delegation.
+
+00:05:47.188 — A proxy for assistance, with conditions
+The paper connects empowerment to an average-case reward quantity under explicit assumptions: a Boltzmann-rational human, a specified reward-coverage distribution, ergodicity, and a sufficiently long horizon. This is a conditional justification for the proxy. It is not a theorem that maximizing the estimate will satisfy every individual human preference.
+
+The experiments include synthetic settings and a cooperative game. For a new application, inspect human behavior as well as estimator values and task outcomes. A changing human policy, missing options in the data, or a poor representation can alter what the learned score means. Compare with strong assistance baselines rather than assuming that more mutual information is always better.
+
+The conceptual step is nevertheless powerful: a robot can learn to improve the consequences of human choices without first identifying an explicit reward function. In the final lesson, the environment becomes a text document. The human's action is an edit, and the assistant must learn which predictable work to complete before returning control at a meaningful decision.
+Source / scope: Assistance Theorem 3.1 assumptions and experimental scope. Language transition is a pedagogical connection to Ellis et al.
+

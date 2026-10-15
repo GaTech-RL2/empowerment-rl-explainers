@@ -1,0 +1,31 @@
+;FFMETADATA1
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=69646
+title=Spend a choice or preserve choices
+[CHAPTER]
+TIMEBASE=1/1000
+START=69646
+END=138191
+title=Replace trajectories with distributions
+[CHAPTER]
+TIMEBASE=1/1000
+START=138191
+END=210529
+title=Mutual information is an average KL radius
+[CHAPTER]
+TIMEBASE=1/1000
+START=210529
+END=282383
+title=Count distinguishable outcomes, not labels
+[CHAPTER]
+TIMEBASE=1/1000
+START=282383
+END=354081
+title=Information geometry is not reward geometry
+[CHAPTER]
+TIMEBASE=1/1000
+START=354081
+END=420000
+title=From a geometric object to an algorithm

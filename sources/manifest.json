@@ -1,0 +1,74 @@
+[
+  {
+    "id": "diayn",
+    "arxiv": "1802.06070",
+    "url": "https://arxiv.org/abs/1802.06070",
+    "pdf_url": "https://arxiv.org/pdf/1802.06070",
+    "sha256": "af9965836b917def393670da0258d76c31787076c19ad7cbf46a7a7eda510624",
+    "pages": 22,
+    "consulted": "2026-10-15",
+    "title": "Diversity Is All You Need: Learning Skills without a Reward Function",
+    "authors": "Benjamin Eysenbach, Abhishek Gupta, Julian Ibarz, Sergey Levine",
+    "publication": "ICLR 2019 · preprint 2018"
+  },
+  {
+    "id": "geometry",
+    "arxiv": "2610.07796",
+    "url": "https://arxiv.org/abs/2610.07796",
+    "pdf_url": "https://arxiv.org/pdf/2610.07796",
+    "sha256": "c3b862f64a3614345776af814dcd088c71394f17a9d2dfc05f15dca26652311a",
+    "pages": 34,
+    "consulted": "2026-10-15",
+    "title": "The Geometry of Empowerment",
+    "authors": "Catherine Ji, Vivek Myers, Sergey Levine, Benjamin Eysenbach",
+    "publication": "October 2026 preprint"
+  },
+  {
+    "id": "scaling",
+    "arxiv": "2610.13002",
+    "url": "https://arxiv.org/abs/2610.13002",
+    "pdf_url": "https://arxiv.org/pdf/2610.13002",
+    "sha256": "765f209fb80ab2420c1abd72252899a72983e29545efa328a68a09ea11512a95",
+    "pages": 29,
+    "consulted": "2026-10-15",
+    "title": "Scaling Empowered Agents",
+    "authors": "Catherine Ji, Vivek Myers, Joshua Lin, Alexandra Wingate, Sergey Levine, Benjamin Eysenbach",
+    "publication": "October 2026 preprint"
+  },
+  {
+    "id": "representation",
+    "arxiv": "2605.30656",
+    "url": "https://arxiv.org/abs/2605.30656",
+    "pdf_url": "https://arxiv.org/pdf/2605.30656",
+    "sha256": "7e71ac5234c7a2f725f6207cc303952e2d89842e1d40c3ec1bfffcf358a6c00e",
+    "pages": 31,
+    "consulted": "2026-10-15",
+    "title": "Learning to Perceive the World Through Control: Empowerment-Based Representation Learning",
+    "authors": "Mahsa Bastankhah, Sophie Broderick, Benjamin Eysenbach",
+    "publication": "ICML 2026"
+  },
+  {
+    "id": "assistance",
+    "arxiv": "2411.02623",
+    "url": "https://arxiv.org/abs/2411.02623",
+    "pdf_url": "https://arxiv.org/pdf/2411.02623",
+    "sha256": "fa01f7bd7ce6c5747e45183f2ea7a5de2b6be02779d37525d33f6ca771cbad9b",
+    "pages": 20,
+    "consulted": "2026-10-15",
+    "title": "Learning to Assist Humans without Inferring Rewards",
+    "authors": "Vivek Myers, Evan Ellis, Sergey Levine, Benjamin Eysenbach, Anca Dragan",
+    "publication": "NeurIPS 2024"
+  },
+  {
+    "id": "language",
+    "arxiv": "2510.13709",
+    "url": "https://arxiv.org/abs/2510.13709",
+    "pdf_url": "https://arxiv.org/pdf/2510.13709",
+    "sha256": "fbec6512c179e675e66498596bd6e02d8fbaac8e73f2927c66eee9369eaa0015",
+    "pages": 25,
+    "consulted": "2026-10-15",
+    "title": "Training LLM Agents to Empower Humans",
+    "authors": "Evan Ellis, Vivek Myers, Jens Tuyls, Sergey Levine, Anca Dragan, Benjamin Eysenbach",
+    "publication": "ICML 2026 · preprint 2025"
+  }
+]

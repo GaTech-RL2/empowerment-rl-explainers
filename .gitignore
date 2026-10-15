@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+research/
+qa/chrome*/
+media/narration/
+media/*.wav
+qa/*.log
+*.zip
+qa/*.png
+qa/*-storyboard.jpg
+qa/*-encoded.jpg
+qa/voice*
+qa/text-test.png
+content-draft.json
+.DS_Store

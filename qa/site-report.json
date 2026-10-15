@@ -1,0 +1,50 @@
+{
+  "url": "http://127.0.0.1:8772/",
+  "episodes": [
+    {
+      "episode": 1,
+      "duration": 420,
+      "chapters": 6,
+      "derivations": 18,
+      "sliders": "all boundaries passed"
+    },
+    {
+      "episode": 2,
+      "duration": 420,
+      "chapters": 6,
+      "derivations": 18,
+      "sliders": "all boundaries passed"
+    },
+    {
+      "episode": 3,
+      "duration": 420,
+      "chapters": 6,
+      "derivations": 18,
+      "sliders": "all boundaries passed"
+    },
+    {
+      "episode": 4,
+      "duration": 420,
+      "chapters": 6,
+      "derivations": 18,
+      "sliders": "all boundaries passed"
+    },
+    {
+      "episode": 5,
+      "duration": 420,
+      "chapters": 6,
+      "derivations": 18,
+      "sliders": "all boundaries passed"
+    },
+    {
+      "episode": 6,
+      "duration": 420,
+      "chapters": 6,
+      "derivations": 18,
+      "sliders": "all boundaries passed"
+    }
+  ],
+  "numeric_parity_fixtures": 13,
+  "mobile": "watch, lab, notes: no page overflow",
+  "page_errors": []
+}
