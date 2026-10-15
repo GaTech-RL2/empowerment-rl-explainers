@@ -13,7 +13,7 @@ def main():
                 assert path.exists(),path
                 # Remove Matplotlib's canvas fill to make equation SVGs transparent.
                 s=re.sub(r'<g id="patch_1">.*?</g>','',path.read_text(),flags=re.S)
-                path.write_text(s)
+                path.write_text("\n".join(line.rstrip() for line in s.splitlines())+"\n")
     (ROOT/'content.json').write_text(json.dumps(data,ensure_ascii=False,indent=2))
     template=(ROOT/'src/index.template.html').read_text()
     for marker,file in [('CSS','style.css'),('LABS','labs.js'),('APP','app.js')]:template=template.replace('/* INLINE_'+marker+' */',(ROOT/'src'/file).read_text())

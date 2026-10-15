@@ -15,6 +15,10 @@ Six original **7-minute narrated videos** centered on empowerment papers by Benj
 
 The teaching sequence combines intuition, derivation, worked examples, and geometric visuals, inspired by the requested Jia-Bin Huang and 3Blue1Brown presentation references. The scripts, diagrams, and animations are original. Narration is the neutral synthetic macOS Samantha voice. This independent collection is not produced or endorsed by those creators or the paper authors.
 
+## Follow-up literature
+
+[What can an agent learn with the skills it has?](https://gatech-rl2.github.io/empowerment-rl-explainers/literature.html) is a searchable, annotated guide to 19 primary papers on dynamics identification, information-seeking exploration, skill composition and acquisition, curriculum selection, and transfer limits. It includes eight Eysenbach-coauthored papers, a suggested reading order, a proposed research structure, a rope-manipulation experiment sketch, and downloadable BibTeX/JSON. The literature guide is a written companion; it is separate from the six video topics. Rebuild it with `python3 src/literature.py`.
+
 ## Watch and experiment
 
 Open `index.html` locally, or use the hosted collection. Keep the `assets`, `media`, `previews`, `captions`, `transcripts`, and `code` directories with the HTML. The complete player, lab code, and lesson data are embedded; playback and experiments require no API key or network access. Burned captions work even where a browser restricts local-file caption tracks.
